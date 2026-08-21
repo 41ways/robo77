@@ -1,19 +1,52 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>로보77</title>
+<script>
+  // 첫 페인트 전에 테마를 정해서 화면이 번쩍이지 않게 한다
+  try { document.documentElement.dataset.theme = localStorage.getItem('theme') || 'light'; } catch (e) {}
+</script>
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🤖</text></svg>">
 </head>
 <body>
 
-<!-- ───────────────── 시작 화면 ───────────────── -->
-<section id="gate" class="screen on">
+<!-- ───────────────── 타이틀 ───────────────── -->
+<section id="title" class="screen on">
+  <div class="theme-switch">
+    <span class="ts-ico">☀</span>
+    <button id="tTheme" class="toggle sm" role="switch" aria-checked="true" aria-label="라이트 테마"><span></span></button>
+    <span class="ts-ico">☾</span>
+  </div>
+
+  <div class="hero">
+    <div class="fan" aria-hidden="true">
+      <span class="fc minus">-10</span>
+      <span class="fc x2">×2</span>
+      <span class="fc s76">76</span>
+      <span class="fc rev">↺</span>
+      <span class="fc big">33</span>
+    </div>
+
+    <h1 class="logo">로보<span class="seventy">77</span></h1>
+    <p class="tag">합을 77 아래로. 11의 배수도 피해서.</p>
+    <p class="hero-hearts" aria-label="하트 3개"><span>♥</span><span>♥</span><span>♥</span></p>
+
+    <div class="title-actions">
+      <button id="bBegin" class="btn big">시작하기</button>
+      <button class="btn ghost wide" data-help>가이드</button>
+    </div>
+    <p class="hero-foot">2~6인 온라인 대전</p>
+  </div>
+</section>
+
+<!-- ───────────────── 방 고르기 ───────────────── -->
+<section id="setup" class="screen">
   <div class="gate-card">
-    <h1 class="logo">로보<span>77</span></h1>
-    <p class="tag">합을 77 아래로. 11의 배수도 피해서.<br>2~6인 온라인 대전</p>
+    <button id="bBack" class="back" aria-label="뒤로">←</button>
+    <h2 class="setup-title">어디로 들어갈까요</h2>
 
     <label class="field">
       <span>이름</span>
@@ -21,7 +54,7 @@
     </label>
 
     <div class="gate-buttons">
-      <button id="bCreate" class="btn big">방 만들기</button>
+      <button id="bCreate" class="btn big">새 방 만들기</button>
       <div class="or"><span>또는</span></div>
       <div class="join-row">
         <input id="gCode" maxlength="4" placeholder="코드" autocomplete="off" spellcheck="false">
@@ -29,7 +62,7 @@
       </div>
     </div>
 
-    <button class="btn link" data-help>처음이신가요? 규칙 보기</button>
+    <button class="btn link" data-help>규칙이 궁금하다면</button>
   </div>
 </section>
 
@@ -45,6 +78,7 @@
       <div class="head-actions">
         <button id="bCopy" class="btn ghost small">초대 링크 복사</button>
         <button class="btn ghost small" data-help>규칙</button>
+        <button class="btn ghost small icon" data-theme-toggle aria-label="테마 바꾸기">☾</button>
         <button id="bLeave1" class="btn ghost small danger">나가기</button>
       </div>
     </header>
@@ -89,6 +123,7 @@
     <span class="pill" id="gDir">↻ 정방향</span>
     <span class="spacer"></span>
     <button class="btn ghost small" data-help>규칙</button>
+    <button class="btn ghost small icon" data-theme-toggle aria-label="테마 바꾸기">☾</button>
     <button id="bLeave2" class="btn ghost small danger">나가기</button>
   </header>
 
@@ -131,11 +166,11 @@
   </div>
 </section>
 
-<!-- ───────────────── 도움말 ───────────────── -->
+<!-- ───────────────── 가이드 ───────────────── -->
 <div id="help" class="modal hidden">
   <div class="sheet">
     <header class="sheet-head">
-      <h2>로보77 규칙</h2>
+      <h2>로보77 가이드</h2>
       <button id="bHelpX" class="x" aria-label="닫기">✕</button>
     </header>
 
@@ -182,7 +217,7 @@
           <li><b>방향전환은 마지막 보루다.</b> 합이 11의 배수여도 안전하게 넘길 수 있는 유일한 카드다. 아껴 두자.</li>
           <li><b>×2는 다음 사람에게 두 배로 부담을 준다.</b> 합이 70쯤일 때 넘기면 상대가 두 장을 내야 해서 거의 확실히 터진다.</li>
           <li><b>76은 첫 턴에만 기회가 온다.</b> 판이 시작될 때 못 내면 손에서 계속 자리만 차지한다.</li>
-          <li><b>회색으로 흐려진 카드는 지금 낼 수 없는 카드다.</b> 눌러도 나가지 않는다.</li>
+          <li><b>흐려진 카드는 지금 낼 수 없는 카드다.</b> 눌러도 나가지 않는다.</li>
         </ul>
       </div>
     </div>

@@ -35,7 +35,7 @@ function connect(onOpen) {
         t: 'resume', code: store.getItem('code'), token: store.getItem('token'),
       })), 1200);
     } else {
-      show('gate');
+      show('title');
     }
   };
 }
@@ -64,13 +64,13 @@ function handle(m) {
 
     case 'err':
       toast(m.msg);
-      if (m.fatal) { store.removeItem('code'); store.removeItem('token'); show('gate'); }
+      if (m.fatal) { store.removeItem('code'); store.removeItem('token'); show('title'); }
       break;
 
     case 'left':
       store.removeItem('code'); store.removeItem('token');
       history.replaceState(null, '', location.pathname);
-      show('gate');
+      show('title');
       break;
   }
 }
@@ -278,9 +278,31 @@ function tick() {
 }
 requestAnimationFrame(tick);
 
+/* ─────────────────────────── 테마 ─────────────────────────── */
+
+/** 라이트가 기본. 고른 값은 다음에 와도 그대로 남는다. */
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('theme', t); } catch (_) {}
+  const light = t !== 'dark';
+  $('#tTheme').setAttribute('aria-checked', String(light));
+  $$('[data-theme-toggle]').forEach(b => { b.textContent = light ? '☾' : '☀'; });
+}
+const curTheme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+const flipTheme = () => setTheme(curTheme() === 'dark' ? 'light' : 'dark');
+
+$('#tTheme').onclick = flipTheme;
+$$('[data-theme-toggle]').forEach(b => { b.onclick = flipTheme; });
+
 /* ─────────────────────────── 조작 ─────────────────────────── */
 
 const myName = () => ($('#gName').value || '').trim().slice(0, 12);
+
+$('#bBegin').onclick = () => {
+  show('setup');
+  setTimeout(() => $('#gName').focus(), 60);
+};
+$('#bBack').onclick = () => show('title');
 
 $('#bCreate').onclick = () => {
   store.removeItem('code'); store.removeItem('token');
@@ -317,7 +339,7 @@ const leave = () => {
   send({ t: 'leave' });
   store.removeItem('code'); store.removeItem('token');
   history.replaceState(null, '', location.pathname);
-  show('gate');
+  show('title');
 };
 $('#bLeave1').onclick = leave;
 $('#bLeave2').onclick = () => { if (confirm('정말 나갈까요?')) leave(); };
@@ -351,6 +373,7 @@ document.addEventListener('keydown', e => {
 
 /* ─────────────────────────── 시작 ─────────────────────────── */
 
+setTheme(localStorage.getItem('theme') || 'light');
 $('#gName').value = localStorage.getItem('name') || '';
 
 const invited = new URLSearchParams(location.search).get('r');
@@ -359,6 +382,8 @@ if (invited) $('#gCode').value = invited.toUpperCase().slice(0, 4);
 // 새로고침해도 자리를 지킨다
 if (store.getItem('code') && store.getItem('token')) {
   connect(() => send({ t: 'resume', code: store.getItem('code'), token: store.getItem('token') }));
+} else if (invited) {
+  show('setup');   // 초대 링크로 왔으면 코드가 채워진 채로 바로 방 고르기
 } else {
-  show('gate');
+  show('title');
 }
