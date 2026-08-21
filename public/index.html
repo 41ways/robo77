@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>로보77</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🤖</text></svg>">
+</head>
+<body>
+
+<!-- ───────────────── 시작 화면 ───────────────── -->
+<section id="gate" class="screen on">
+  <div class="gate-card">
+    <h1 class="logo">로보<span>77</span></h1>
+    <p class="tag">합을 77 아래로. 11의 배수도 피해서.<br>2~6인 온라인 대전</p>
+
+    <label class="field">
+      <span>이름</span>
+      <input id="gName" maxlength="12" placeholder="플레이어" autocomplete="off">
+    </label>
+
+    <div class="gate-buttons">
+      <button id="bCreate" class="btn big">방 만들기</button>
+      <div class="or"><span>또는</span></div>
+      <div class="join-row">
+        <input id="gCode" maxlength="4" placeholder="코드" autocomplete="off" spellcheck="false">
+        <button id="bJoin" class="btn ghost">참가</button>
+      </div>
+    </div>
+
+    <button class="btn link" data-help>처음이신가요? 규칙 보기</button>
+  </div>
+</section>
+
+<!-- ───────────────── 대기실 ───────────────── -->
+<section id="lobby" class="screen">
+  <div class="panel">
+    <header class="panel-head">
+      <div>
+        <p class="muted small">방 코드</p>
+        <p class="code" id="lCode">----</p>
+        <p class="muted small" id="lCount">1 / 6명</p>
+      </div>
+      <div class="head-actions">
+        <button id="bCopy" class="btn ghost small">초대 링크 복사</button>
+        <button class="btn ghost small" data-help>규칙</button>
+        <button id="bLeave1" class="btn ghost small danger">나가기</button>
+      </div>
+    </header>
+
+    <ul id="lPlayers" class="seat-list"></ul>
+
+    <div id="lHostBox" class="host-box">
+      <div class="opt">
+        <div class="opt-text">
+          <p class="opt-title">숫자 합 공개</p>
+          <p class="opt-desc" id="sumDesc">합이 화면에 뜬다. 처음이라면 켜 두는 쪽.</p>
+        </div>
+        <button id="tSum" class="toggle" role="switch" aria-checked="true"><span></span></button>
+      </div>
+
+      <div class="opt">
+        <div class="opt-text">
+          <p class="opt-title">제한 시간</p>
+          <p class="opt-desc">시간이 지나면 하트를 하나 잃는다.</p>
+        </div>
+        <div class="seg" id="segTime">
+          <button data-ms="5000">5초</button>
+          <button data-ms="10000" class="on">10초</button>
+          <button data-ms="15000">15초</button>
+          <button data-ms="0">무제한</button>
+        </div>
+      </div>
+
+      <div class="lobby-actions">
+        <button id="bBot" class="btn ghost">봇 추가</button>
+        <button id="bStart" class="btn big">시작</button>
+      </div>
+    </div>
+    <p id="lWait" class="muted center hidden">방장이 시작하기를 기다리는 중…</p>
+  </div>
+</section>
+
+<!-- ───────────────── 게임 ───────────────── -->
+<section id="game" class="screen">
+  <header class="bar">
+    <span class="pill" id="gRound">1라운드</span>
+    <span class="pill" id="gDir">↻ 정방향</span>
+    <span class="spacer"></span>
+    <button class="btn ghost small" data-help>규칙</button>
+    <button id="bLeave2" class="btn ghost small danger">나가기</button>
+  </header>
+
+  <div id="seats" class="seats"></div>
+
+  <div class="table">
+    <div class="sum-wrap">
+      <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
+        <circle class="ring-fg" cx="60" cy="60" r="54"></circle>
+      </svg>
+      <div class="sum-inner">
+        <p class="sum-label">합</p>
+        <p class="sum" id="gSum">0</p>
+      </div>
+    </div>
+    <div class="last">
+      <p class="muted small">마지막에 나온 카드</p>
+      <div id="gTop" class="top-slot"><div class="card-back">77</div></div>
+    </div>
+  </div>
+
+  <p id="gHint" class="hint"></p>
+
+  <div class="hand-wrap">
+    <div id="gHand" class="hand"></div>
+  </div>
+
+  <div id="gNote" class="note hidden"><div class="note-in"><p class="note-title"></p><p class="note-sub"></p></div></div>
+</section>
+
+<!-- ───────────────── 끝 ───────────────── -->
+<section id="over" class="screen">
+  <div class="gate-card">
+    <p class="crown">👑</p>
+    <h2 id="oWinner">승자</h2>
+    <p class="muted center" id="oSub"></p>
+    <button id="bAgain" class="btn big">다시 하기</button>
+    <button id="bLeave3" class="btn link">방 나가기</button>
+  </div>
+</section>
+
+<!-- ───────────────── 도움말 ───────────────── -->
+<div id="help" class="modal hidden">
+  <div class="sheet">
+    <header class="sheet-head">
+      <h2>로보77 규칙</h2>
+      <button id="bHelpX" class="x" aria-label="닫기">✕</button>
+    </header>
+
+    <nav class="tabs" id="helpTabs">
+      <button class="on" data-tab="basic">기본</button>
+      <button data-tab="cards">카드</button>
+      <button data-tab="tips">요령</button>
+    </nav>
+
+    <div class="sheet-body">
+      <div class="tabpage on" data-page="basic">
+        <p class="lead">돌아가면서 카드를 한 장씩 낸다. 낸 카드의 숫자가 <b>하나의 합</b>에 계속 더해진다.</p>
+        <ol class="steps">
+          <li><b>합을 77 이상으로 만들면 진다.</b> 하트를 하나 잃고 그 라운드가 끝난다.</li>
+          <li><b>합이 11의 배수(11·22·33·44·55·66)가 되어도 하트를 잃는다.</b> 0은 판의 출발점이라 세지 않는다.</li>
+          <li>제한 시간 안에 못 내도 하트를 잃는다.</li>
+          <li>카드를 낸 뒤에는 곧바로 한 장을 채워서 늘 5장을 들고 있게 된다.</li>
+          <li>하트를 다 잃어도 계속 한다. <b>하트가 0인 상태에서 또 잃어야 탈락.</b></li>
+          <li>마지막까지 남은 한 명이 승자.</li>
+        </ol>
+        <div class="callout">
+          <p><b>숫자 합 공개</b>를 끄면 합이 화면에 뜨지 않는다. 나온 카드를 보고 직접 더해 가야 하고,
+          11의 배수를 헛디디는 일이 훨씬 잦아진다. 난이도를 올리고 싶을 때 끄면 된다.</p>
+        </div>
+      </div>
+
+      <div class="tabpage" data-page="cards">
+        <p class="lead">카드는 모두 56장이다.</p>
+        <ul class="cardlist">
+          <li><span class="chip plain">2~10</span><div><b>그냥 더한다.</b> 2~9는 각 3장, 10은 8장.</div></li>
+          <li><span class="chip zero">0</span><div><b>합이 그대로다.</b> 하지만 계산은 거치므로, 합이 이미 11의 배수인 채로 내면 하트를 잃는다. 4장.</div></li>
+          <li><span class="chip big">11 · 22<br>33 · 44<br>55 · 66</span><div><b>한 방에 11의 배수로 만드는 카드.</b> 합이 0이거나 11의 배수일 때 내면 그대로 자살이다. 각 1장.</div></li>
+          <li><span class="chip minus">-10</span><div><b>10을 뺀다.</b> 합이 9 이하일 때 내면 음수가 된다. 위기를 넘기는 데 제일 쓸모 있다. 4장.</div></li>
+          <li><span class="chip s76">76</span><div><b>76을 더한다.</b> <b>합이 0 이하일 때만</b> 낼 수 있다. 판을 시작하자마자 난장판으로 만드는 카드. 받은 사람은 0·×2·방향전환이 없으면 죽는다. 1장.</div></li>
+          <li><span class="chip x2">×2</span><div><b>다음 사람이 두 장을 내야 한다.</b> 낸 사람은 아무 영향 없고 합도 변하지 않는다. 라운드 첫 장으로는 못 낸다. 4장.</div></li>
+          <li><span class="chip rev">↺</span><div><b>방향을 뒤집는다.</b> 계산을 거치지 않으므로 <b>합이 11의 배수여도 안전하다.</b> 라운드 첫 장으로는 못 낸다. 5장.</div></li>
+        </ul>
+      </div>
+
+      <div class="tabpage" data-page="tips">
+        <ul class="tips">
+          <li><b>77까지 남은 거리를 본다.</b> 합이 67을 넘으면 10 한 장에 죽는다. 그 전에 -10이나 방향전환을 써서 빠져나온다.</li>
+          <li><b>11의 배수는 합을 볼 때마다 확인한다.</b> 11 · 22 · 33 · 44 · 55 · 66. 특히 합이 낮을 때 방심하다 33 같은 데서 걸린다.</li>
+          <li><b>방향전환은 마지막 보루다.</b> 합이 11의 배수여도 안전하게 넘길 수 있는 유일한 카드다. 아껴 두자.</li>
+          <li><b>×2는 다음 사람에게 두 배로 부담을 준다.</b> 합이 70쯤일 때 넘기면 상대가 두 장을 내야 해서 거의 확실히 터진다.</li>
+          <li><b>76은 첫 턴에만 기회가 온다.</b> 판이 시작될 때 못 내면 손에서 계속 자리만 차지한다.</li>
+          <li><b>회색으로 흐려진 카드는 지금 낼 수 없는 카드다.</b> 눌러도 나가지 않는다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

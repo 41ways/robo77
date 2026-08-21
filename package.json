@@ -1,0 +1,18 @@
+{
+  "name": "robo77",
+  "version": "1.0.0",
+  "private": true,
+  "description": "로보77 — 합을 77 아래로 지키는 온라인 카드 게임",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test/rules.js && node test/flow.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
