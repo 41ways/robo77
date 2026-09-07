@@ -217,15 +217,17 @@ b { font-weight: 700; }
   font-size: 21px; font-weight: 800;
   background: var(--c-plain); color: var(--c-ink);
   box-shadow: var(--card-shadow), var(--card-inset);
-  animation: fanIn .62s cubic-bezier(.2,.9,.3,1.25) var(--d, 0s) backwards, bob 4.6s ease-in-out calc(var(--d, 0s) + .6s) infinite;
+  /* 왼쪽 카드 자리에 다 포개져 있다가 오른쪽으로 한 장씩 쓸려 나가며 펼쳐진다.
+     --sx 는 첫 카드 자리까지 되돌아가는 거리(카드 폭 62 - 겹침 14 = 48px 간격) */
+  animation: sweep .55s cubic-bezier(.25,.8,.3,1.1) var(--d, 0s) backwards, bob 4.6s ease-in-out calc(var(--d, 0s) + .7s) infinite;
   transform-origin: 50% 120%;
 }
-@keyframes fanIn { from { transform: rotate(0) translateY(26px) scale(.72); opacity: 0; } }
-.fc.minus { background: var(--c-minus); color: #fff; transform: rotate(-17deg) translateY(12px); --d: .34s; }
-.fc.x2    { background: var(--c-x2);              transform: rotate(-8deg)  translateY(3px);  --d: .2s; }
-.fc.s76   { background: var(--c-s76);  color: #fff; transform: translateY(-4px); --d: .06s; }
-.fc.rev   { background: var(--c-rev);             transform: rotate(8deg)   translateY(3px);  --d: .2s; font-size: 28px; }
-.fc.big   { background: var(--c-big);  color: #fff; transform: rotate(17deg) translateY(12px); --d: .34s; }
+@keyframes sweep { from { transform: rotate(-17deg) translate(var(--sx, 0px), 12px); } }
+.fc.minus { background: var(--c-minus); color: #fff; transform: rotate(-17deg) translateY(12px); --d: 0s;   --sx: 0px; }
+.fc.x2    { background: var(--c-x2);              transform: rotate(-8deg)  translateY(3px);  --d: .12s; --sx: -48px; }
+.fc.s76   { background: var(--c-s76);  color: #fff; transform: translateY(-4px); --d: .24s; --sx: -96px; }
+.fc.rev   { background: var(--c-rev);             transform: rotate(8deg)   translateY(3px);  --d: .36s; --sx: -144px; font-size: 28px; }
+.fc.big   { background: var(--c-big);  color: #fff; transform: rotate(17deg) translateY(12px); --d: .48s; --sx: -192px; }
 @keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -9px; } }
 @media (prefers-reduced-motion: reduce) { .fc { animation: none; } }
 
