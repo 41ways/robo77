@@ -221,7 +221,7 @@ b { font-weight: 700; }
 }
 .fc.minus { background: var(--c-minus); color: #fff; transform: rotate(-17deg) translateY(12px); animation-delay: 0s; }
 .fc.x2    { background: var(--c-x2);              transform: rotate(-8deg)  translateY(3px);  animation-delay: .35s; }
-.fc.s76   { background: var(--c-s76);  color: #fff; transform: translateY(-4px); z-index: 2;   animation-delay: .7s; }
+.fc.s76   { background: var(--c-s76);  color: #fff; transform: translateY(-4px); animation-delay: .7s; }
 .fc.rev   { background: var(--c-rev);             transform: rotate(8deg)   translateY(3px);  animation-delay: 1.05s; font-size: 28px; }
 .fc.big   { background: var(--c-big);  color: #fff; transform: rotate(17deg) translateY(12px); animation-delay: 1.4s; }
 @keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -9px; } }
