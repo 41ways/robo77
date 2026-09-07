@@ -217,17 +217,19 @@ b { font-weight: 700; }
   font-size: 21px; font-weight: 800;
   background: var(--c-plain); color: var(--c-ink);
   box-shadow: var(--card-shadow), var(--card-inset);
-  /* 왼쪽 카드 자리에 다 포개져 있다가 오른쪽으로 한 장씩 쓸려 나가며 펼쳐진다.
-     --sx 는 첫 카드 자리까지 되돌아가는 거리(카드 폭 62 - 겹침 14 = 48px 간격) */
-  animation: sweep .55s cubic-bezier(.25,.8,.3,1.1) var(--d, 0s) backwards, bob 4.6s ease-in-out calc(var(--d, 0s) + .7s) infinite;
+  /* 다섯 장이 맨 왼쪽 카드 자리·각도에 포개져 있다가 오른쪽으로 한 장씩 펼쳐진다.
+     translate/rotate 는 개별 속성이라 transform(자기 자리)과 겹치지 않고 그 위에 얹힌다.
+     --sx/--sy 는 첫 카드 자리까지의 거리(카드 폭 62 - 겹침 14 = 48px 간격) */
+  transform: rotate(var(--r)) translateY(var(--dy));
+  animation: gather .6s cubic-bezier(.25,.8,.3,1.1) var(--d, 0s) backwards, bob 4.6s ease-in-out calc(var(--d, 0s) + .7s) infinite;
   transform-origin: 50% 120%;
 }
-@keyframes sweep { from { transform: rotate(-17deg) translate(var(--sx, 0px), 12px); } }
-.fc.minus { background: var(--c-minus); color: #fff; transform: rotate(-17deg) translateY(12px); --d: 0s;   --sx: 0px; }
-.fc.x2    { background: var(--c-x2);              transform: rotate(-8deg)  translateY(3px);  --d: .12s; --sx: -48px; }
-.fc.s76   { background: var(--c-s76);  color: #fff; transform: translateY(-4px); --d: .24s; --sx: -96px; }
-.fc.rev   { background: var(--c-rev);             transform: rotate(8deg)   translateY(3px);  --d: .36s; --sx: -144px; font-size: 28px; }
-.fc.big   { background: var(--c-big);  color: #fff; transform: rotate(17deg) translateY(12px); --d: .48s; --sx: -192px; }
+@keyframes gather { from { translate: var(--sx) var(--sy); rotate: calc(-17deg - var(--r)); } }
+.fc.minus { background: var(--c-minus); color: #fff; --r: -17deg; --dy: 12px; --d: 0s;   --sx: 0px;    --sy: 0px; }
+.fc.x2    { background: var(--c-x2);              --r: -8deg;  --dy: 3px;  --d: .12s; --sx: -48px;  --sy: 9px; }
+.fc.s76   { background: var(--c-s76);  color: #fff; --r: 0deg;   --dy: -4px; --d: .24s; --sx: -96px;  --sy: 16px; }
+.fc.rev   { background: var(--c-rev);             --r: 8deg;   --dy: 3px;  --d: .36s; --sx: -144px; --sy: 9px; font-size: 28px; }
+.fc.big   { background: var(--c-big);  color: #fff; --r: 17deg;  --dy: 12px; --d: .48s; --sx: -192px; --sy: 0px; }
 @keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -9px; } }
 @media (prefers-reduced-motion: reduce) { .fc { animation: none; } }
 
