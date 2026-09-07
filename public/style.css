@@ -109,7 +109,6 @@
   --c-ink: #14181f;
 
   --r: 14px;
-  --display: 'Orbit', 'Pretendard', sans-serif;   /* 기계적인 숫자·표제 */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -211,7 +210,6 @@ b { font-weight: 700; }
 }
 /* 겹쳐도 값이 읽히게 숫자를 카드 위쪽에 둔다 */
 .fc {
-  font-family: var(--display); font-weight: 400;
   width: 62px; height: 88px; margin: 0 -7px;
   border-radius: 10px;
   display: flex; align-items: flex-start; justify-content: center;
@@ -219,17 +217,19 @@ b { font-weight: 700; }
   font-size: 21px; font-weight: 800;
   background: var(--c-plain); color: var(--c-ink);
   box-shadow: var(--card-shadow), var(--card-inset);
-  animation: bob 4.6s ease-in-out infinite;
+  animation: fanIn .62s cubic-bezier(.2,.9,.3,1.25) var(--d, 0s) backwards, bob 4.6s ease-in-out calc(var(--d, 0s) + .6s) infinite;
+  transform-origin: 50% 120%;
 }
-.fc.minus { background: var(--c-minus); color: #fff; transform: rotate(-17deg) translateY(12px); animation-delay: 0s; }
-.fc.x2    { background: var(--c-x2);              transform: rotate(-8deg)  translateY(3px);  animation-delay: .35s; }
-.fc.s76   { background: var(--c-s76);  color: #fff; transform: translateY(-4px); animation-delay: .7s; }
-.fc.rev   { background: var(--c-rev);             transform: rotate(8deg)   translateY(3px);  animation-delay: 1.05s; font-size: 28px; }
-.fc.big   { background: var(--c-big);  color: #fff; transform: rotate(17deg) translateY(12px); animation-delay: 1.4s; }
+@keyframes fanIn { from { transform: rotate(0) translateY(26px) scale(.72); opacity: 0; } }
+.fc.minus { background: var(--c-minus); color: #fff; transform: rotate(-17deg) translateY(12px); --d: .34s; }
+.fc.x2    { background: var(--c-x2);              transform: rotate(-8deg)  translateY(3px);  --d: .2s; }
+.fc.s76   { background: var(--c-s76);  color: #fff; transform: translateY(-4px); --d: .06s; }
+.fc.rev   { background: var(--c-rev);             transform: rotate(8deg)   translateY(3px);  --d: .2s; font-size: 28px; }
+.fc.big   { background: var(--c-big);  color: #fff; transform: rotate(17deg) translateY(12px); --d: .34s; }
 @keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -9px; } }
 @media (prefers-reduced-motion: reduce) { .fc { animation: none; } }
 
-.logo { font-family: var(--display); font-size: 50px; letter-spacing: -1px; font-weight: 400; line-height: 1; }
+.logo { font-size: 52px; letter-spacing: -2px; font-weight: 800; line-height: 1; }
 .logo .seventy {
   color: var(--gold);
   text-shadow: 0 3px 0 var(--gold-soft);
@@ -302,7 +302,7 @@ input:focus { border-color: var(--gold); }
 }
 .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
 .head-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.code { font-family: var(--display); font-size: 34px; font-weight: 400; letter-spacing: 7px; color: var(--gold); }
+.code { font-size: 34px; font-weight: 800; letter-spacing: 7px; color: var(--gold); }
 
 .seat-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .seat-list li {
@@ -407,7 +407,7 @@ input:focus { border-color: var(--gold); }
 .ring-fg.hot { stroke: var(--heart); }
 .sum-inner { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
 .sum-label { font-size: 11px; color: var(--dim); letter-spacing: 3px; }
-.sum { font-family: var(--display); font-size: 52px; font-weight: 400; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.sum { font-size: 52px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .sum.hide { color: var(--faint); }
 .sum.danger { color: var(--heart); }
 .sum.pop { animation: pop .3s; }
@@ -429,7 +429,7 @@ input:focus { border-color: var(--gold); }
   position: relative;
   flex: none;
 }
-.card .v { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+.card .v { font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
 .card .n { font-size: 10.5px; font-weight: 700; opacity: .62; margin-top: 5px; letter-spacing: .3px; }
 .card.zero  { background: var(--c-zero); }
 .card.big   { background: var(--c-big);   color: #fff; }
