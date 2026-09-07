@@ -1,7 +1,22 @@
-# 로보77
+# 🤖 로보77
+
+![종류](https://img.shields.io/badge/%EC%A2%85%EB%A5%98-%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84-2f6b5e?style=flat-square) ![인원](https://img.shields.io/badge/%EC%9D%B8%EC%9B%90-2~6%EC%9D%B8-555?style=flat-square) [![플레이](https://img.shields.io/badge/%ED%94%8C%EB%A0%88%EC%9D%B4-robo77.onrender.com-d8332b?style=flat-square)](https://robo77.onrender.com/) [![허브](https://img.shields.io/badge/%ED%97%88%EB%B8%8C-41ways%EC%9D%98%20%EB%A0%88%EB%93%9C%EB%B2%84%ED%8A%BC-b4571f?style=flat-square)](https://41ways.github.io/norara/)
 
 합을 계속 더해 가다가 **77 이상**이 되거나 **11의 배수**를 밟으면 하트를 잃는 온라인 카드 게임.
 자리는 **2~6인**. 사람이 모자라면 봇으로 채우면 되니 혼자서도 시작할 수 있다.
+
+## 한눈에
+
+| | |
+|---|---|
+| **종류** | 보드게임 · 온라인 |
+| **인원** | 2~6인 (봇으로 채우면 혼자도) |
+| **플레이** | **https://robo77.onrender.com/** |
+| **로컬 실행** | `npm install && npm start` → http://localhost:8790 |
+| **한 줄 규칙** | 합이 77 이상이 되거나 11의 배수를 밟으면 하트 하나를 잃는다 |
+| **허브** | https://41ways.github.io/norara/ |
+
+**목차** — [실행](#실행) · [친구와 하기](#친구와-하기) · [규칙](#규칙) · [화면](#화면) · [난이도 — 숫자 합 공개](#난이도--숫자-합-공개) · [구조](#구조) · [테스트](#테스트)
 
 ## 실행
 
@@ -36,7 +51,7 @@ npx cloudflared tunnel --url http://localhost:8790
 2. [dashboard.render.com](https://dashboard.render.com) → **New → Blueprint**
 3. `41ways/robo77` 저장소 선택 → **Apply**
 
-빌드가 끝나면 `https://robo77-xxxx.onrender.com` 주소가 나온다. 그 주소를 친구에게 주면 끝.
+빌드가 끝나면 `https://robo77.onrender.com` 주소가 나온다 (이미 이 주소로 떠 있다). 그 주소를 친구에게 주면 끝.
 이후에는 `main`에 push할 때마다 자동으로 다시 배포된다.
 
 무료 플랜은 **15분 동안 아무도 안 들어오면 잠들고**, 그 뒤 첫 접속이 40~60초 걸린다.
