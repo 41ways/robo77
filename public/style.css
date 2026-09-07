@@ -4,48 +4,48 @@
 :root, [data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f2ece0;
-  --bg-glow: #fdfbf6;
-  --surface: #fdfbf6;      /* 패널 */
-  --surface-2: #f5efe3;    /* 입력창 · 좌석처럼 오목한 것 */
-  --surface-3: #fdfbf6;    /* 버튼 */
-  --surface-4: #ece4d4;    /* 버튼 hover · 배지 */
-  --line: #ded3bd;
+  --bg: #e6ecea;
+  --bg-glow: #f7faf9;
+  --surface: #f7faf9;      /* 패널 */
+  --surface-2: #edf2f0;    /* 입력창 · 좌석처럼 오목한 것 */
+  --surface-3: #f7faf9;    /* 버튼 */
+  --surface-4: #dde5e2;    /* 버튼 hover · 배지 */
+  --line: #c9d4d0;
 
-  --ink: #2f2a23;
-  --dim: #6e6555;
-  --faint: #948872;
+  --ink: #1b2320;
+  --dim: #5d6b66;
+  --faint: #8a9893;
 
-  --gold: #b4571f;
-  --gold-2: #d4762f;
-  --gold-ink: #fff6ee;
-  --gold-soft: rgba(180, 87, 31, .1);
-  --gold-line: rgba(180, 87, 31, .28);
+  --gold: #c2681c;
+  --gold-2: #e0862f;
+  --gold-ink: #fff7ef;
+  --gold-soft: rgba(194, 104, 28, .12);
+  --gold-line: rgba(194, 104, 28, .3);
 
   --heart: #d93b57;
-  --heart-off: #cfc4ab;
+  --heart-off: #c3cfca;
   --ok: #2f9e63;
-  --safe: #a3977f;
+  --safe: #8fa39c;
   --danger-ink: #b03047;
-  --danger-line: #e6cdcd;
+  --danger-line: #e4cfd2;
 
-  --table: #ded3bd;
-  --table-2: #cec1a5;
-  --table-3: #bcad8d;
-  --table-line: #c6b899;
+  --table: #d3dcd8;
+  --table-2: #c0cbc6;
+  --table-3: #adb9b3;
+  --table-line: #b5c1bc;
 
-  --back-a: #b9a988;        /* 카드 뒷면 줄무늬 */
-  --back-b: #ab9a77;
-  --back-line: #a2915f;
-  --back-ink: rgba(60, 45, 20, .3);
+  --back-a: #9fb0aa;        /* 카드 뒷면 줄무늬 */
+  --back-b: #91a29c;
+  --back-line: #83958e;
+  --back-ink: rgba(20, 35, 30, .32);
 
-  --mini-a: #c2b394;
-  --mini-b: #b3a384;
-  --mini-line: #a2926f;
+  --mini-a: #aebdb7;
+  --mini-b: #9fafa9;
+  --mini-line: #8c9d96;
 
-  --scrim: rgba(60, 50, 35, .55);
-  --shadow: 0 1px 0 #fff inset, 0 6px 24px rgba(70, 55, 30, .13);
-  --card-shadow: 0 3px 10px rgba(70, 55, 30, .22);
+  --scrim: rgba(30, 45, 40, .55);
+  --shadow: 0 1px 0 #fff inset, 0 6px 24px rgba(30, 50, 45, .13);
+  --card-shadow: 0 3px 10px rgba(30, 50, 45, .22);
   --card-inset: inset 0 -3px 0 rgba(0, 0, 0, .08);
 }
 
@@ -109,6 +109,7 @@
   --c-ink: #14181f;
 
   --r: 14px;
+  --display: 'Orbit', 'Pretendard', sans-serif;   /* 기계적인 숫자·표제 */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -210,6 +211,7 @@ b { font-weight: 700; }
 }
 /* 겹쳐도 값이 읽히게 숫자를 카드 위쪽에 둔다 */
 .fc {
+  font-family: var(--display); font-weight: 400;
   width: 62px; height: 88px; margin: 0 -7px;
   border-radius: 10px;
   display: flex; align-items: flex-start; justify-content: center;
@@ -227,7 +229,7 @@ b { font-weight: 700; }
 @keyframes bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -9px; } }
 @media (prefers-reduced-motion: reduce) { .fc { animation: none; } }
 
-.logo { font-size: 52px; letter-spacing: -2px; font-weight: 800; line-height: 1; }
+.logo { font-family: var(--display); font-size: 50px; letter-spacing: -1px; font-weight: 400; line-height: 1; }
 .logo .seventy {
   color: var(--gold);
   text-shadow: 0 3px 0 var(--gold-soft);
@@ -300,7 +302,7 @@ input:focus { border-color: var(--gold); }
 }
 .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
 .head-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.code { font-size: 34px; font-weight: 800; letter-spacing: 7px; color: var(--gold); }
+.code { font-family: var(--display); font-size: 34px; font-weight: 400; letter-spacing: 7px; color: var(--gold); }
 
 .seat-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .seat-list li {
@@ -405,7 +407,7 @@ input:focus { border-color: var(--gold); }
 .ring-fg.hot { stroke: var(--heart); }
 .sum-inner { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
 .sum-label { font-size: 11px; color: var(--dim); letter-spacing: 3px; }
-.sum { font-size: 52px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.sum { font-family: var(--display); font-size: 52px; font-weight: 400; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .sum.hide { color: var(--faint); }
 .sum.danger { color: var(--heart); }
 .sum.pop { animation: pop .3s; }
@@ -427,7 +429,7 @@ input:focus { border-color: var(--gold); }
   position: relative;
   flex: none;
 }
-.card .v { font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
+.card .v { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1; font-variant-numeric: tabular-nums; }
 .card .n { font-size: 10.5px; font-weight: 700; opacity: .62; margin-top: 5px; letter-spacing: .3px; }
 .card.zero  { background: var(--c-zero); }
 .card.big   { background: var(--c-big);   color: #fff; }
