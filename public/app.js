@@ -192,6 +192,23 @@ function renderHand(myTurn) {
   const wrap = $('#gHand');
   wrap.classList.toggle('off', !myTurn);
 
+  // 손에 카드가 없을 때 — 탈락했거나 라운드 사이다.
+  // 자리를 통째로 비워 두면 화면 아래가 허전하니, 남은 사람들의 손패를 뒷면으로 보여 준다.
+  if (!S.hand.length) {
+    handEls.clear();
+    const alive = S.players.filter(p => !p.out);
+    wrap.innerHTML =
+      '<div class="watch">' +
+      alive.map(p =>
+        '<div class="watch-p' + (p.id === S.turn ? ' now' : '') + '">' +
+        '<p class="watch-n">' + esc(p.name) + '</p>' +
+        '<div class="watch-c">' + '<i></i>'.repeat(Math.min(p.hand, 8)) + '</div>' +
+        '</div>').join('') +
+      '</div>';
+    return;
+  }
+  if (wrap.querySelector('.watch')) wrap.innerHTML = '';
+
   const now = new Set(S.hand.map(c => c.id));
   for (const [id, el] of Array.from(handEls)) {
     if (now.has(id)) continue;
