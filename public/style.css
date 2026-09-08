@@ -591,3 +591,6 @@ input:focus { border-color: var(--gold); }
   .fc { width: 56px; height: 79px; font-size: 20px; margin: 0 -4px; padding-top: 9px; }
   .theme-switch { top: 12px; right: 12px; padding: 5px 10px; }
 }
+
+/* 저작권 고지 — 타이틀 아래, 자세히 봐야 보일 만큼만 */
+.legal{margin:26px auto 0;max-width:36em;font-size:10.5px;line-height:1.75;color:var(--faint);opacity:.7;text-align:center;word-break:keep-all}
