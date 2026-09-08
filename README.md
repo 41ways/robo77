@@ -49,7 +49,7 @@ npx cloudflared tunnel --url http://localhost:8790
 
 1. GitHub에 push
 2. [dashboard.render.com](https://dashboard.render.com) → **New → Blueprint**
-3. `41ways/robo77` 저장소 선택 → **Apply**
+3. `41ways/robo77-fanproj` 저장소 선택 → **Apply**
 
 빌드가 끝나면 `https://robo77.onrender.com` 주소가 나온다 (이미 이 주소로 떠 있다). 그 주소를 친구에게 주면 끝.
 이후에는 `main`에 push할 때마다 자동으로 다시 배포된다.
