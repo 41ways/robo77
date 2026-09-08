@@ -52,6 +52,7 @@ function handle(m) {
       break;
 
     case 'state':
+      if (S && (S.round !== m.round || S.phase !== m.phase)) handEls.clear();
       S = m;
       me = m.you != null ? m.you : me;
       if (m.now) skew = m.now - Date.now();   // 서버 시계에 맞춰 남은 시간을 센다
@@ -162,6 +163,89 @@ function renderLobby() {
   $('#bBot').disabled = S.players.length >= S.max;
 }
 
+/* ── 카드가 오가는 모습 ──
+   손패를 통째로 다시 그리면 낸 카드도 뽑은 카드도 그냥 "생겨난다".
+   id 로 맞춰서 남아 있는 카드는 그대로 두고, 나간 카드는 더미로 날려 보내고,
+   새로 들어온 카드는 덱에서 뽑혀 오게 한다. */
+
+const handEls = new Map();     // 카드 id -> 화면 요소
+let landAt = 0;                // 날아가는 카드가 더미에 닿는 시각
+let topTimer = null;
+
+function renderTop() {
+  const top = $('#gTop');
+  const draw = () => {
+    top.innerHTML = '';
+    // 빈 더미를 카드 뒷면으로 그리면 옆의 덱과 똑같이 보여 헷갈린다.
+    top.appendChild(S.top ? cardEl(S.top) : Object.assign(document.createElement('div'), {
+      className: 'slot-empty', textContent: '아직 없음',
+    }));
+  };
+  clearTimeout(topTimer);
+  const wait = landAt - Date.now();
+  // 날아가는 카드와 더미 위의 카드가 동시에 보이면 같은 장이 둘로 보인다.
+  if (wait > 0) topTimer = setTimeout(draw, wait);
+  else draw();
+}
+
+function renderHand(myTurn) {
+  const wrap = $('#gHand');
+  wrap.classList.toggle('off', !myTurn);
+
+  const now = new Set(S.hand.map(c => c.id));
+  for (const [id, el] of Array.from(handEls)) {
+    if (now.has(id)) continue;
+    handEls.delete(id);
+    flyToPile(el);
+  }
+
+  let fresh = 0;
+  for (const c of S.hand) {
+    let el = handEls.get(c.id);
+    if (!el) {
+      el = cardEl(c, { button: true });
+      el.onclick = () => { if (!el.disabled) send({ t: 'play', id: c.id }); };
+      el.classList.add('dealt');
+      el.style.setProperty('--dl', (fresh++ * 70) + 'ms');
+      // 연출이 끝나면 표시를 지운다 — 남겨 두면 상태가 지저분해진다
+      el.addEventListener('animationend', () => el.classList.remove('dealt'), { once: true });
+      handEls.set(c.id, el);
+    }
+    el.disabled = !myTurn || !c.ok;
+    wrap.appendChild(el);                 // 이미 있으면 자리만 옮긴다
+  }
+
+  // 라운드가 바뀌어 기억을 비웠을 때 남아 있던 낱장을 치운다
+  const keep = new Set(handEls.values());
+  for (const child of Array.from(wrap.children)) if (!keep.has(child)) child.remove();
+}
+
+function flyToPile(el) {
+  const from = el.getBoundingClientRect();
+  const slot = $('#gTop').getBoundingClientRect();
+  el.remove();
+  if (!from.width || !slot.width) return;
+
+  const g = el.cloneNode(true);
+  g.classList.remove('dealt');
+  g.classList.add('flying');
+  g.disabled = true;
+  g.style.cssText = 'position:fixed;margin:0;left:' + from.left + 'px;top:' + from.top +
+                    'px;width:' + from.width + 'px;height:' + from.height + 'px';
+  document.body.appendChild(g);
+
+  const dx = (slot.left + slot.width / 2) - (from.left + from.width / 2);
+  const dy = (slot.top + slot.height / 2) - (from.top + from.height / 2);
+  const sc = slot.width / from.width;
+  const MS = 380;
+  landAt = Date.now() + MS - 40;          // 도착 직전에 더미를 바꾼다
+  requestAnimationFrame(() => {
+    g.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ') rotate(5deg)';
+  });
+  setTimeout(() => g.remove(), MS + 40);
+  renderTop();
+}
+
 function renderGame() {
   $('#gRound').textContent = `${S.round}라운드`;
   $('#gDir').textContent = S.dir === 1 ? '↻ 정방향' : '↺ 역방향';
@@ -202,24 +286,20 @@ function renderGame() {
     lastSum = S.sum;
   }
 
-  // 맨 위 카드
-  const top = $('#gTop');
-  top.innerHTML = '';
-  top.appendChild(S.top ? cardEl(S.top) : Object.assign(document.createElement('div'), {
-    className: 'card-back', textContent: '77',
-  }));
+  // 덱 — 카드가 어디서 오는지 보이게
+  const deckEl = $('#gDeck');
+  if (deckEl) {
+    deckEl.querySelector('.deck-n').textContent = S.deck != null ? S.deck : '';
+    deckEl.classList.toggle('empty', S.deck === 0);
+  }
+
+  // 맨 위 카드 — 내가 낸 카드가 날아가는 중이면 도착한 뒤에 바꾼다
+  renderTop();
 
   // 손패
   const mine = S.players.find(p => p.id === me);
   const myTurn = S.turn === me && !S.reveal;
-  const hand = $('#gHand');
-  hand.innerHTML = '';
-  hand.classList.toggle('off', !myTurn);
-  for (const c of S.hand) {
-    const el = cardEl(c, { button: true, disabled: !myTurn || !c.ok });
-    el.onclick = () => send({ t: 'play', id: c.id });
-    hand.appendChild(el);
-  }
+  renderHand(myTurn);
 
   // 안내 한 줄
   const cur = S.players.find(p => p.id === S.turn);

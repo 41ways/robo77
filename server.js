@@ -397,6 +397,8 @@ function stateFor(room, me) {
     note: room.note,
     winner: room.winner,
     turnEndsAt: room.turnEndsAt,
+    deck: room.deck.length,        // 화면에 덱을 그려 주려고 — 카드가 어디서 오는지 보이게
+    discard: room.discard.length,
     now: Date.now(),
     you: me ? me.id : null,
     hand: me ? me.hand.map(c => Object.assign({ ok: R.playable(c, st) }, c)) : [],

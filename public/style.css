@@ -29,10 +29,11 @@
   --danger-ink: #b03047;
   --danger-line: #e4cfd2;
 
-  --table: #d3dcd8;
-  --table-2: #c0cbc6;
-  --table-3: #adb9b3;
-  --table-line: #b5c1bc;
+  /* 상판 — 펠트가 아니라 금속판. 로봇이 카드를 돌리는 작업대에 가깝다 */
+  --table: #dfe3ea;
+  --table-2: #ccd2dd;
+  --table-3: #b9c1cf;
+  --table-line: #c1c8d5;
 
   --back-a: #9fb0aa;        /* 카드 뒷면 줄무늬 */
   --back-b: #91a29c;
@@ -594,3 +595,81 @@ input:focus { border-color: var(--gold); }
 
 /* 저작권 고지 — 타이틀 아래, 자세히 봐야 보일 만큼만 */
 .legal{margin:26px auto 0;max-width:36em;font-size:10.5px;line-height:1.75;color:var(--faint);opacity:.7;text-align:center;word-break:keep-all}
+
+/* ══════════ 덱 ══════════
+   카드가 어디서 오는지 보이지 않으면 손패에 그냥 생겨나는 것처럼 느껴진다. */
+.draw { text-align: center; }
+.draw .muted { margin-bottom: 8px; }
+.deck {
+  position: relative;
+  width: 74px; height: 104px; border-radius: 12px;
+  display: grid; place-items: center;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 6px, transparent 6px 12px),
+    linear-gradient(160deg, #3b4356, #232a38);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px rgba(255,255,255,.10);
+  color: #cdd5e4; font-weight: 800; font-size: 15px;
+}
+/* 여러 장 쌓여 있는 두께 */
+.deck::before, .deck::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  background: linear-gradient(160deg, #333b4c, #1e2530);
+  box-shadow: 0 1px 0 rgba(255,255,255,.06);
+}
+.deck::before { transform: translate(3px, 3px); }
+.deck::after  { transform: translate(6px, 6px); opacity: .75; }
+.deck.empty { opacity: .35; }
+.deck .deck-n { font-variant-numeric: tabular-nums; }
+
+/* ══════════ 카드가 오가는 모습 ══════════ */
+/* 낸 카드 — 손에서 더미로 날아간다 */
+.card.flying {
+  z-index: 60; pointer-events: none;
+  transition: transform .38s cubic-bezier(.34, .8, .3, 1);
+  box-shadow: 0 22px 40px rgba(0,0,0,.42);
+}
+/* 뽑은 카드 — 덱 쪽에서 미끄러져 들어오며 펴진다 */
+@keyframes dealin {
+  from { opacity: 0; transform: translate(-42px, -34px) rotate(-12deg) scale(.82); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: none; }
+}
+.hand .card.dealt { animation: dealin .34s cubic-bezier(.2, .9, .3, 1.05) var(--dl, 0ms) backwards; }
+@media (prefers-reduced-motion: reduce) {
+  .card.flying { transition: none; }
+  .hand .card.dealt { animation: none; }
+}
+@media (max-width: 560px) {
+  .deck { width: 58px; height: 82px; font-size: 13px; }
+}
+
+/* ══════════ 상판 — 금속 작업대 ══════════
+   결과 리벳을 얹어 카드가 놓인 자리에 무게를 준다. 카드와 숫자를 방해하지 않는 세기로. */
+.table { position: relative; overflow: hidden; }
+.table::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background:
+    repeating-linear-gradient(102deg,
+      rgba(255,255,255,.05) 0 2px, transparent 2px 5px),
+    radial-gradient(circle at 18px 18px, rgba(0,0,0,.16) 0 2px, transparent 2.6px),
+    radial-gradient(circle at calc(100% - 18px) 18px, rgba(0,0,0,.16) 0 2px, transparent 2.6px),
+    radial-gradient(circle at 18px calc(100% - 18px), rgba(0,0,0,.16) 0 2px, transparent 2.6px),
+    radial-gradient(circle at calc(100% - 18px) calc(100% - 18px), rgba(0,0,0,.16) 0 2px, transparent 2.6px);
+  opacity: .8;
+}
+.table > * { position: relative; z-index: 1; }
+
+/* 아직 아무도 내지 않은 더미 — 덱과 구분되도록 빈 자리로 */
+.slot-empty {
+  width: 74px; height: 104px; border-radius: 12px;
+  display: grid; place-items: center; text-align: center;
+  border: 2px dashed var(--line);
+  color: var(--dim); font-size: 11px; font-weight: 700; opacity: .7;
+}
+@media (max-width: 560px) { .slot-empty { width: 58px; height: 82px; font-size: 10px; } }
+
+/* ══════════ 아래 여백 ══════════
+   상판 높이가 묶여 있어 화면이 길면 손패 아래가 통째로 비었다.
+   남는 자리를 손패 위아래로 나눠 갖게 해서 여백이 의도한 것처럼 보이게 한다. */
+.table { max-height: min(46vh, 420px); }
+.hand-wrap { flex: 1; align-items: center; }
