@@ -243,7 +243,6 @@ function flyToPile(el) {
     g.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ') rotate(5deg)';
   });
   setTimeout(() => g.remove(), MS + 40);
-  renderTop();
 }
 
 function renderGame() {
@@ -293,13 +292,15 @@ function renderGame() {
     deckEl.classList.toggle('empty', S.deck === 0);
   }
 
-  // 맨 위 카드 — 내가 낸 카드가 날아가는 중이면 도착한 뒤에 바꾼다
-  renderTop();
-
-  // 손패
+  // 손패를 먼저 그린다.
+  // 여기서 낸 카드가 날아가기 시작해야, 그 다음 renderTop 이 도착 시각을 알고 기다린다.
+  // 순서가 반대면 더미에 카드가 먼저 뜨고 같은 장이 공중에도 떠 있어 둘로 보인다.
   const mine = S.players.find(p => p.id === me);
   const myTurn = S.turn === me && !S.reveal;
   renderHand(myTurn);
+
+  // 맨 위 카드 — 날아가는 카드가 도착한 뒤에 바꾼다
+  renderTop();
 
   // 안내 한 줄
   const cur = S.players.find(p => p.id === S.turn);
