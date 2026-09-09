@@ -756,4 +756,8 @@ input:focus { border-color: var(--gold); }
   border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px;
   background: var(--surface-3); color: var(--text);
 }
-@media (max-width: 560px) { .chat { height: min(320px, 52vh); } }
+/* 좁은 화면에서는 아래에 두면 손패를 통째로 덮는다.
+   차례 제한시간이 도는 게임이라 카드가 안 보이면 그대로 손해다. 위쪽으로 올린다. */
+@media (max-width: 560px) {
+  .chat { top: 56px; bottom: auto; height: min(46vh, 330px); left: 12px; right: 12px; width: auto; }
+}
