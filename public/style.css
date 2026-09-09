@@ -699,3 +699,11 @@ input:focus { border-color: var(--gold); }
 }
 @keyframes duepulse { 50% { filter: brightness(1.12); } }
 @media (prefers-reduced-motion: reduce) { .pill.due { animation: none; } }
+
+/* ══════════ 넓은 화면에서의 판 ══════════
+   상판이 화면 폭을 다 차지하는데 안에는 덱·합·더미 셋뿐이라 좌우가 휑했다.
+   폭을 묶어 가운데로 모으고, 대신 높이를 조금 키워 손패와의 사이가 벌어지지 않게 한다. */
+.table { max-width: 940px; margin-left: auto; margin-right: auto; max-height: min(52vh, 470px); }
+.seats { max-width: 940px; margin-left: auto; margin-right: auto; }
+/* 안내 한 줄은 상판 바로 아래에 붙는다 */
+.hint { margin-top: 2px; }
