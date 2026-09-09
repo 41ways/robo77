@@ -16,6 +16,10 @@ let lastSum = 0;
 let skew = 0;             // 서버 시계와의 차이
 const store = window.sessionStorage;
 
+/* 계측 도구(qa/scene.js)가 상태를 들여다볼 수 있게 최소한만 내놓는다 */
+window.__S = () => S;
+Object.defineProperty(window, '__me', { get: () => me });
+
 /* ─────────────────────────── 접속 ─────────────────────────── */
 
 function connect(onOpen) {
