@@ -472,7 +472,11 @@ input:focus { border-color: var(--gold); }
 .hand .card .v { font-size: 40px; }
 .hand .card.rev .v { font-size: 46px; }
 .hand .card .n { font-size: 11.5px; margin-top: 7px; }
-.hand .card:hover { transform: translateY(-9px); box-shadow: 0 14px 24px rgba(0, 0, 0, .3); }
+/* 손가락으로 만지는 기기에서는 :hover 가 탭 뒤에도 남는다.
+   손패 요소는 판이 이어지는 동안 재사용되므로, 한 장이 들린 채로 굳어 버린다. */
+@media (hover: hover) {
+  .hand .card:hover { transform: translateY(-9px); box-shadow: 0 14px 24px rgba(0, 0, 0, .3); }
+}
 .hand .card:disabled,
 .hand .card.cant { cursor: not-allowed; filter: grayscale(.85) brightness(.78); }
 .hand .card:disabled:hover,
