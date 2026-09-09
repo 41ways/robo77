@@ -270,6 +270,15 @@ function renderGame() {
   $('#gRound').textContent = `${S.round}라운드`;
   $('#gDir').textContent = S.dir === 1 ? '↻ 정방향' : '↺ 역방향';
 
+  // ×2 로 생긴 "몇 장 내야 함"은 한 사람 차례로 끝나지 않고 이어지는 의무다.
+  // 안내 한 줄에 끼워 넣으면 차례가 바뀔 때마다 같이 사라져 읽히지 않는다. 따로 세워 둔다.
+  const due = $('#gDue');
+  if (due) {
+    const on = S.due > 1;
+    due.hidden = !on;
+    if (on) due.textContent = `×2 — ${S.due}장 내야 함`;
+  }
+
   // 자리 — 나를 맨 앞으로 돌려서 순서를 읽기 쉽게 한다
   const list = S.players.slice();
   const i = list.findIndex(p => p.id === me);
