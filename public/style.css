@@ -473,8 +473,10 @@ input:focus { border-color: var(--gold); }
 .hand .card.rev .v { font-size: 46px; }
 .hand .card .n { font-size: 11.5px; margin-top: 7px; }
 .hand .card:hover { transform: translateY(-9px); box-shadow: 0 14px 24px rgba(0, 0, 0, .3); }
-.hand .card:disabled { cursor: not-allowed; filter: grayscale(.85) brightness(.78); }
-.hand .card:disabled:hover { transform: none; }
+.hand .card:disabled,
+.hand .card.cant { cursor: not-allowed; filter: grayscale(.85) brightness(.78); }
+.hand .card:disabled:hover,
+.hand .card.cant:hover { transform: none; }
 .hand.off .card { cursor: default; filter: grayscale(.5) brightness(.88); }
 .hand.off .card:hover { transform: none; }
 

@@ -251,6 +251,14 @@ function renderTop() {
   else draw();
 }
 
+/** 왜 지금 못 내는지 — 로보77에서 막히는 경우는 둘뿐이다 */
+function whyNotPlayable(c) {
+  if (c.tag === 's76') return '76은 합이 0 이하일 때만 낼 수 있어요.';
+  if (c.t === 'x2')    return '라운드 첫 장으로는 ×2를 낼 수 없어요.';
+  if (c.t === 'rev')   return '라운드 첫 장으로는 방향전환을 낼 수 없어요.';
+  return '지금은 낼 수 없는 카드예요.';
+}
+
 function renderHand(myTurn) {
   const wrap = $('#gHand');
   wrap.classList.toggle('off', !myTurn);
@@ -284,14 +292,29 @@ function renderHand(myTurn) {
     let el = handEls.get(c.id);
     if (!el) {
       el = cardEl(c, { button: true });
-      el.onclick = () => { if (!el.disabled) send({ t: 'play', id: c.id }); };
+      // 낼 수 없는 카드도 눌리게 두고 왜 안 되는지 말해 준다.
+      // 회색 카드를 눌렀는데 아무 반응이 없으면 규칙을 배울 길이 없다.
+      // 손패 요소는 여러 판에 걸쳐 재사용되므로, 누른 순간의 상태를 다시 읽는다.
+      el.onclick = () => {
+        if (!S) return;
+        const cur = S.hand.find(x => x.id === c.id);
+        const mine = S.turn === me && !S.reveal;
+        if (!cur || !mine) return;                 // 남의 차례에는 조용히
+        if (cur.ok) { send({ t: 'play', id: cur.id }); return; }
+        toast(whyNotPlayable(cur));
+      };
       el.classList.add('dealt');
       el.style.setProperty('--dl', (fresh++ * 70) + 'ms');
       // 연출이 끝나면 표시를 지운다 — 남겨 두면 상태가 지저분해진다
       el.addEventListener('animationend', () => el.classList.remove('dealt'), { once: true });
       handEls.set(c.id, el);
     }
-    el.disabled = !myTurn || !c.ok;
+    // disabled 를 걸면 클릭 자체가 안 잡혀 이유를 말해 줄 수 없다.
+    // 보이기는 똑같이 흐리게 두되, 누를 수는 있게 한다.
+    el.disabled = false;
+    const canPlay = myTurn && c.ok;
+    el.classList.toggle('cant', !canPlay);
+    el.setAttribute('aria-disabled', String(!canPlay));
     wrap.appendChild(el);                 // 이미 있으면 자리만 옮긴다
   }
 
