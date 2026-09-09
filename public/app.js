@@ -522,6 +522,8 @@ $('#bHelpX').onclick = () => $('#help').classList.add('hidden');
 $('#help').onclick = e => { if (e.target.id === 'help') $('#help').classList.add('hidden'); };
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') $('#help').classList.add('hidden');
+  // 글을 치는 중에는 단축키로 받지 않는다 — 채팅에 "?" 를 치면 도움말이 열렸다
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   if (e.key === '?' || (e.key === '/' && e.shiftKey)) openHelp();
 });
 $$('#helpTabs button').forEach(b => {
