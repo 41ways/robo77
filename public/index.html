@@ -232,6 +232,17 @@
 
 <div id="toast" class="toast"></div>
 
+<!-- 같은 방 사람끼리 하는 채팅 — 봇만 있는 방에서는 뜨지 않는다 -->
+<button id="chatBtn" class="chat-btn" hidden aria-label="채팅 열기">💬<span class="chat-n" id="chatN" hidden></span></button>
+<section id="chat" class="chat" hidden aria-label="채팅">
+  <header class="chat-head"><b>채팅</b><span class="chat-sub" id="chatWho"></span><button class="chat-x" id="chatX" aria-label="닫기">✕</button></header>
+  <div class="chat-log" id="chatLog"></div>
+  <form class="chat-in" id="chatForm">
+    <input id="chatText" maxlength="200" placeholder="같은 방 사람들에게" autocomplete="off">
+    <button class="btn small" type="submit">보내기</button>
+  </form>
+</section>
+
 <script src="/app.js"></script>
 <!-- 연출 속도 재기 — ?qa=pace 로 들어올 때만 불러온다 -->
 <script>if(new URLSearchParams(location.search).get('qa')==='pace'){var s=document.createElement('script');s.src='qa/scene.js';document.body.appendChild(s);}</script>

@@ -55,6 +55,10 @@ function handle(m) {
       history.replaceState(null, '', `?r=${m.code}`);
       break;
 
+    case 'chat':
+      addChat(m.name, m.text, m.from === me);
+      break;
+
     case 'state':
       if (S && (S.round !== m.round || S.phase !== m.phase)) handEls.clear();
       S = m;
@@ -121,10 +125,65 @@ const heartsHTML = h => {
   return s;
 };
 
+/* ─────────────────────────── 채팅 ───────────────────────────
+   같은 방 사람끼리만 오간다. 판정과는 무관하고 어디에도 저장되지 않는다.
+   봇만 있는 방에서는 아예 뜨지 않는다. */
+
+let chatUnread = 0;
+
+function chatOpen(on) {
+  $('#chat').hidden = !on;
+  if (!on) return;
+  chatUnread = 0; $('#chatN').hidden = true;
+  $('#chatText').focus();
+  const log = $('#chatLog'); log.scrollTop = log.scrollHeight;
+}
+
+function addChat(name, text, mine) {
+  const log = $('#chatLog');
+  const d = document.createElement('p');
+  d.className = 'chat-msg' + (mine ? ' mine' : '');
+  d.innerHTML = `<b>${esc(name)}</b> ${esc(text)}`;
+  log.appendChild(d);
+  while (log.children.length > 60) log.removeChild(log.firstChild);
+  log.scrollTop = log.scrollHeight;
+
+  if ($('#chat').hidden && !mine) {
+    chatUnread++;
+    const n = $('#chatN');
+    n.textContent = chatUnread > 9 ? '9+' : chatUnread;
+    n.hidden = false;
+  }
+}
+
+/** 사람이 나 말고 또 있을 때만 채팅을 내놓는다 */
+function syncChatVisible() {
+  const humans = S ? S.players.filter(p => !p.bot).length : 0;
+  const on = humans > 1;
+  $('#chatBtn').hidden = !on;
+  if (!on) { $('#chat').hidden = true; }
+  else $('#chatWho').textContent = `${humans}명`;
+}
+
+$('#chatBtn').onclick = () => chatOpen($('#chat').hidden);
+$('#chatX').onclick = () => chatOpen(false);
+$('#chatForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const box = $('#chatText');
+  const text = box.value.trim();
+  if (!text) return;
+  send({ t: 'chat', text });
+  box.value = '';
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#chat').hidden) chatOpen(false);
+});
+
 /* ─────────────────────────── 그리기 ─────────────────────────── */
 
 function render() {
   if (!S) return;
+  syncChatVisible();
   if (S.phase === 'lobby') { show('lobby'); renderLobby(); }
   else if (S.phase === 'playing') { show('game'); renderGame(); }
   else if (S.phase === 'over') { show('over'); renderOver(); }
