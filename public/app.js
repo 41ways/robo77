@@ -459,6 +459,7 @@ function tick() {
   const fg = $('.ring-fg');
   if (!S || S.phase !== 'playing' || !S.turnEndsAt || S.reveal) {
     fg.style.opacity = '0';   // 무제한이면 링 자체를 지운다 (끝점 점이 남지 않게)
+    hideClock();              // 안 지우면 마지막 숫자가 얼어붙은 채 남는다
     return;
   }
   fg.style.opacity = '1';
@@ -479,10 +480,17 @@ function tick() {
     clock.hidden = false;
     clock.classList.toggle('warn', p <= .5 && p > .25);
     clock.classList.toggle('hot', p <= .25);
-  } else if (!clock.hidden) {
-    clock.hidden = true;
-    clock.dataset.s = '';
+  } else {
+    hideClock();
   }
+}
+
+function hideClock() {
+  const c = $('#gClock');
+  if (!c || c.hidden) return;
+  c.hidden = true;
+  c.dataset.s = '';
+  c.classList.remove('warn', 'hot');
 }
 requestAnimationFrame(tick);
 
