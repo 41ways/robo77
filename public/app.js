@@ -468,6 +468,21 @@ function tick() {
   fg.style.strokeDashoffset = String(RING * (1 - p));
   fg.classList.toggle('warn', p <= .5 && p > .25);
   fg.classList.toggle('hot', p <= .25);
+
+  // 링은 판 한가운데에 있는데, 내 차례에는 눈이 아래 손패에 가 있다.
+  // 시간이 끝나가는 걸 못 보고 하트를 잃지 않도록 손패 바로 위에도 남은 초를 둔다.
+  const clock = $('#gClock');
+  const mine = S.turn === me && !S.reveal;
+  if (mine && S.cfg.turnLimit) {
+    const sec = Math.max(0, Math.ceil(left / 1000));
+    if (clock.dataset.s !== String(sec)) { clock.dataset.s = String(sec); clock.textContent = sec + '초'; }
+    clock.hidden = false;
+    clock.classList.toggle('warn', p <= .5 && p > .25);
+    clock.classList.toggle('hot', p <= .25);
+  } else if (!clock.hidden) {
+    clock.hidden = true;
+    clock.dataset.s = '';
+  }
 }
 requestAnimationFrame(tick);
 
