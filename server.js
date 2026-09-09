@@ -21,7 +21,18 @@ const TURN_LIMITS = [5000, 10000, 15000, 0];   // 0 = 무제한
 // 테스트는 판을 빨리 돌려야 해서 ROBO_FAST=1 로 뜸을 들이지 않게 한다
 const FAST = process.env.ROBO_FAST === '1';
 const ROUND_PAUSE = FAST ? 60 : 3000;          // 라운드가 끝나고 다음 판이 열리기까지
-const OVER_PAUSE = FAST ? 40 : 1200;           // 게임 끝났을 때
+const OVER_PAUSE = FAST ? 40 : 1200;           // 게임 끝났을 때 (아래 readMs 로 늘어난다)
+
+/* 왜 졌는지 읽을 시간.
+   한글 짧은 문구는 눈에 들어오는 데 0.8초 + 글자당 0.07초쯤 걸린다.
+   상수로 박아 두면 이름이 길거나 문장이 길 때 모자라므로 글자 수를 세서 정한다. */
+function readMs(text, floor) {
+  if (FAST) return floor;
+  const n = String(text || '').replace(/\s/g, '').length;
+  return Math.max(floor, 800 + n * 70);
+}
+const notePause = (room, floor) =>
+  readMs((room.note ? room.note.name + room.note.text : ''), floor);
 const DC_GRACE = FAST ? 200 : 4000;            // 접속 끊긴 사람 차례를 넘기기까지
 
 const BOT_NAMES = ['깐돌이', '알밤이', '토실이', '방울이', '뽀리', '멍구'];
@@ -246,7 +257,9 @@ function endRound(room, p, reason) {
   pushState(room);
 
   if (alive(room).length < MIN_PLAYERS) {
-    room.timers.round = setTimeout(() => finish(room), OVER_PAUSE);
+    // 마지막 라운드다. 여기서 결과 화면으로 서둘러 넘어가면
+    // 왜 졌는지를 읽지 못한 채 판이 끝나 버린다.
+    room.timers.round = setTimeout(() => finish(room), notePause(room, 2600));
     return;
   }
 
@@ -261,7 +274,7 @@ function endRound(room, p, reason) {
   }
   room.timers.round = setTimeout(() => {
     if (room.phase === 'playing') newRound(room, nextStarter);
-  }, ROUND_PAUSE);
+  }, notePause(room, ROUND_PAUSE));
 }
 
 function finish(room) {
