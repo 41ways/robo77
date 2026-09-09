@@ -199,7 +199,7 @@ function renderLobby() {
   for (const p of S.players) {
     const li = document.createElement('li');
     li.innerHTML = `
-      <span class="av">${(p.name || '?').slice(0, 1)}</span>
+      <span class="av">${esc((p.name || '?').slice(0, 1))}</span>
       <span class="nm">${esc(p.name)}</span>
       ${p.id === S.hostId ? '<span class="badge host">방장</span>' : ''}
       ${p.bot ? '<span class="badge">봇</span>' : ''}
@@ -352,7 +352,7 @@ function renderGame() {
       + (p.out ? ' out' : '')
       + (p.id === me ? ' me' : '');
     el.innerHTML = `
-      <span class="av">${(p.name || '?').slice(0, 1)}</span>
+      <span class="av">${esc((p.name || '?').slice(0, 1))}</span>
       <div class="col">
         <p class="nm">${esc(p.name)}${p.id === me ? ' (나)' : ''}</p>
         <p class="hearts">${p.out ? '<span class="off">탈락</span>' : heartsHTML(p.hearts)}</p>
