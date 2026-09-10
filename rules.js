@@ -42,7 +42,9 @@ const isBust = sum => sum >= BUST;
  *   ×2 · 방향전환 … 라운드의 첫 카드로는 못 낸다
  */
 function playable(card, { sum, firstOfRound }) {
-  if (card.tag === 's76') return sum <= 0;
+  // 76 은 평범한 숫자 카드다. 합이 높을 때 내면 제 손으로 터지지만,
+  // 그건 못 내게 막을 일이 아니라 두는 사람이 판단할 일이다.
+  // (예전에는 "합이 0 이하일 때만" 으로 막아 두었는데 그건 원작 규칙이 아니었다)
   if (card.t === 'x2' || card.t === 'rev') return !firstOfRound;
   return true;
 }

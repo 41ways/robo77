@@ -37,12 +37,14 @@ t('11의 배수 카드는 종류별로 한 장씩', () => {
 
 console.log('\n낼 수 있는가');
 
-t('76은 합이 0 이하일 때만', () => {
+t('76은 언제나 낼 수 있다 (터지는 것은 두는 사람 몫)', () => {
   const c = card('s76', 76);
   assert.ok(R.playable(c, st(0)));
   assert.ok(R.playable(c, st(-4)));
-  assert.ok(!R.playable(c, st(1)));
-  assert.ok(!R.playable(c, st(50)));
+  assert.ok(R.playable(c, st(1)));
+  assert.ok(R.playable(c, st(50)));
+  // 합이 높을 때 내면 스스로 터진다 — 막지 않을 뿐 안전하지는 않다
+  assert.strictEqual(R.resolve(c, { sum: 50, dir: 1 }).lost, 'bust');
 });
 
 t('×2와 방향전환은 라운드 첫 장으로 못 낸다', () => {

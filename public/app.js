@@ -253,9 +253,8 @@ function renderTop() {
 
 /** 왜 지금 못 내는지 — 로보77에서 막히는 경우는 둘뿐이다 */
 function whyNotPlayable(c) {
-  if (c.tag === 's76') return '76은 합이 0 이하일 때만 낼 수 있어요.';
-  if (c.t === 'x2')    return '라운드 첫 장으로는 ×2를 낼 수 없어요.';
-  if (c.t === 'rev')   return '라운드 첫 장으로는 방향전환을 낼 수 없어요.';
+  if (c.t === 'x2')  return '라운드 첫 장으로는 ×2를 낼 수 없어요.';
+  if (c.t === 'rev') return '라운드 첫 장으로는 방향전환을 낼 수 없어요.';
   return '지금은 낼 수 없는 카드예요.';
 }
 
