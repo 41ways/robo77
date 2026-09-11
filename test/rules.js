@@ -107,8 +107,11 @@ t('-10은 합을 음수로 내릴 수 있다', () => {
   assert.strictEqual(r.lost, null);
 });
 
-t('음수 쪽 11의 배수도 하트를 잃는다', () => {
-  assert.strictEqual(R.resolve(card('minus', -10), { sum: -1, dir: 1 }).lost, 'eleven');
+t('음수 쪽 11의 배수(-11 · -22)는 봐준다', () => {
+  const r = R.resolve(card('minus', -10), { sum: -1, dir: 1 });
+  assert.strictEqual(r.sum, -11);
+  assert.strictEqual(r.lost, null);
+  assert.strictEqual(R.isEleven(-22), false);
 });
 
 t('76을 낸 다음 사람은 0 · ×2 · 방향전환이 아니면 죽는다', () => {
