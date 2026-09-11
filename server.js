@@ -184,7 +184,7 @@ function startTurn(room) {
   const p = playerOf(room, room.turn);
   if (!p || p.out) { pushState(room); return; }
 
-  // 낼 수 있는 카드가 하나도 없으면(76 만 남은 경우 등) 그대로 하트를 잃는다
+  // 낼 수 있는 카드가 하나도 없으면(라운드 첫 장인데 ×2·방향전환만 쥔 경우) 그대로 하트를 잃는다
   if (!hasPlayable(room, p)) {
     room.turnEndsAt = 0;
     pushState(room);
