@@ -462,7 +462,7 @@ input:focus { border-color: var(--gold); }
 /* 손패 — 판에서 제일 크다 */
 .hint { text-align: center; font-size: 13.5px; color: var(--dim); min-height: 21px; }
 .hint b { color: var(--gold); }
-.hand-wrap { display: flex; justify-content: center; overflow-x: auto; padding: 2px 0 6px; }
+.hand-wrap { display: flex; justify-content: safe center; overflow-x: auto; padding: 2px 0 6px; }
 .hand { display: flex; gap: 10px; }
 .hand .card {
   width: 96px; height: 136px;
@@ -577,10 +577,12 @@ input:focus { border-color: var(--gold); }
   .mini-hand { gap: 2px; margin-top: 3px; min-height: 15px; }
   .mini-hand i { width: 9px; height: 14px; border-radius: 2px; }
 
-  .table { flex-direction: column; gap: 14px; padding: 14px; max-height: 320px; }
-  .last .muted { margin-bottom: 4px; }
-  .sum-wrap { width: 124px; height: 124px; }
-  .sum { font-size: 42px; }
+  /* 덱 · 합 · 마지막 카드를 한 줄로. 세로로 쌓으면 6인일 때 손패가 화면 밖으로 밀린다. */
+  .table { flex-direction: row; gap: 14px; padding: 12px 10px; min-height: 0; max-height: none; flex: none; }
+  .last { text-align: center; }
+  .last .muted { margin-bottom: 4px; font-size: 10.5px; line-height: 1.3; max-width: 76px; margin-left: auto; margin-right: auto; word-break: keep-all; }
+  .sum-wrap { width: 112px; height: 112px; }
+  .sum { font-size: 40px; }
 
   .card, .card-back { width: 58px; height: 82px; }
   .card .v { font-size: 24px; }
@@ -677,7 +679,7 @@ input:focus { border-color: var(--gold); }
 /* ══════════ 아래 여백 ══════════
    상판 높이가 묶여 있어 화면이 길면 손패 아래가 통째로 비었다.
    남는 자리를 손패 위아래로 나눠 갖게 해서 여백이 의도한 것처럼 보이게 한다. */
-.table { max-height: min(46vh, 420px); }
+@media (min-width: 561px) { .table { max-height: min(46vh, 420px); } }
 .hand-wrap { flex: 1; align-items: center; }
 
 /* ══════════ 관전 판 ══════════
@@ -709,7 +711,11 @@ input:focus { border-color: var(--gold); }
 /* ══════════ 넓은 화면에서의 판 ══════════
    상판이 화면 폭을 다 차지하는데 안에는 덱·합·더미 셋뿐이라 좌우가 휑했다.
    폭을 묶어 가운데로 모으고, 대신 높이를 조금 키워 손패와의 사이가 벌어지지 않게 한다. */
-.table { max-width: 940px; margin-left: auto; margin-right: auto; max-height: min(52vh, 470px); }
+/* 좁은 화면 규칙(max-width:560px) 뒤에 조건 없이 두면 폰에서도 이게 이겨서, 상판이 내용 폭만큼 쪼그라들고
+   높이도 화면의 절반을 차지해 손패가 화면 밖으로 밀렸다. 넓은 화면에서만 쓴다. */
+@media (min-width: 561px) {
+  .table { max-width: 940px; margin-left: auto; margin-right: auto; max-height: min(52vh, 470px); }
+}
 .seats { max-width: 940px; margin-left: auto; margin-right: auto; }
 /* 안내 한 줄은 상판 바로 아래에 붙는다 */
 .hint { margin-top: 2px; }
