@@ -1,6 +1,6 @@
 # 🤖 로보77
 
-![종류](https://img.shields.io/badge/%EC%A2%85%EB%A5%98-%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84-2f6b5e?style=flat-square) ![인원](https://img.shields.io/badge/%EC%9D%B8%EC%9B%90-2~6%EC%9D%B8-555?style=flat-square) [![플레이](https://img.shields.io/badge/%ED%94%8C%EB%A0%88%EC%9D%B4-robo77.onrender.com-d8332b?style=flat-square)](https://robo77.onrender.com/) [![허브](https://img.shields.io/badge/%ED%97%88%EB%B8%8C-41ways%EC%9D%98%20%EB%A0%88%EB%93%9C%EB%B2%84%ED%8A%BC-b4571f?style=flat-square)](https://41ways.github.io/norara/)
+![종류](https://img.shields.io/badge/%EC%A2%85%EB%A5%98-%EB%B3%B4%EB%93%9C%EA%B2%8C%EC%9E%84-2f6b5e?style=flat-square) ![인원](https://img.shields.io/badge/%EC%9D%B8%EC%9B%90-2~6%EC%9D%B8-555?style=flat-square) [![플레이](https://img.shields.io/badge/%ED%94%8C%EB%A0%88%EC%9D%B4-robo77.41ways.workers.dev-d8332b?style=flat-square)](https://robo77.41ways.workers.dev/) [![허브](https://img.shields.io/badge/%ED%97%88%EB%B8%8C-41ways%EC%9D%98%20%EB%A0%88%EB%93%9C%EB%B2%84%ED%8A%BC-b4571f?style=flat-square)](https://41ways.github.io/norara/)
 
 합을 계속 더해 가다가 **77 이상**이 되거나 **11의 배수**를 밟으면 하트를 잃는 온라인 카드 게임.
 자리는 **2~6인**. 사람이 모자라면 봇으로 채우면 되니 혼자서도 시작할 수 있다.
@@ -11,7 +11,7 @@
 |---|---|
 | **종류** | 보드게임 · 온라인 |
 | **인원** | 2~6인 (봇으로 채우면 혼자도) |
-| **플레이** | **https://robo77.onrender.com/** |
+| **플레이** | **https://robo77.41ways.workers.dev/** |
 | **로컬 실행** | `npm install && npm start` → http://localhost:8790 |
 | **한 줄 규칙** | 합이 77 이상이 되거나 11의 배수를 밟으면 하트 하나를 잃는다 |
 | **허브** | https://41ways.github.io/norara/ |
@@ -43,19 +43,21 @@ npx cloudflared tunnel --url http://localhost:8790
 출력되는 `https://....trycloudflare.com` 주소를 공유하면 된다.
 터미널을 끄면 주소도 사라진다. (WebSocket을 그대로 통과시키므로 게임이 정상 동작한다.)
 
-### 배포 (Render)
+### 배포 (Cloudflare Workers 무료 플랜)
 
-`render.yaml` 이 들어 있어서 Render가 설정을 알아서 읽는다.
+`wrangler.toml` 에 설정이 다 들어 있다. 화면 파일(`public/`)은 정적 자산으로, 소켓(`/ws`)만 Durable Object 하나로 간다.
 
-1. GitHub에 push
-2. [dashboard.render.com](https://dashboard.render.com) → **New → Blueprint**
-3. `41ways/robo77-fanproj` 저장소 선택 → **Apply**
+```bash
+npx wrangler login     # 처음 한 번
+npx wrangler deploy
+```
 
-빌드가 끝나면 `https://robo77.onrender.com` 주소가 나온다 (이미 이 주소로 떠 있다). 그 주소를 친구에게 주면 끝.
-이후에는 `main`에 push할 때마다 자동으로 다시 배포된다.
+주소는 **https://robo77.41ways.workers.dev/** 다. 그 주소를 친구에게 주면 끝.
 
-무료 플랜은 **15분 동안 아무도 안 들어오면 잠들고**, 그 뒤 첫 접속이 40~60초 걸린다.
-같이 하기로 한 시간 조금 전에 미리 한 번 열어두면 깨어 있는 상태로 시작할 수 있다.
+- **잠들지 않는다.** 렌더 무료 플랜처럼 첫 접속에 40~60초를 기다릴 일이 없다.
+- 무료 한도는 하루 단위(요청 10만 · 켜진 시간 13,000 GB-s)라 넘어도 다음 날이면 다시 찬다. 결제 수단이 없으니 요금은 붙지 않는다.
+- 켜진 시간을 아끼려고 **20분 동안 아무 조작이 없는 연결은 서버가 닫는다.** 화면을 다시 누르면 이어 붙는다.
+- 예전 Render 배포(`render.yaml`)도 그대로 동작한다. 같은 `game.js` 를 Node 서버(`server.js`)로 띄울 뿐이다.
 
 ## 규칙
 
@@ -63,7 +65,7 @@ npx cloudflared tunnel --url http://localhost:8790
 
 - 돌아가면서 카드를 한 장씩 낸다. 낸 숫자가 하나의 **합**에 계속 더해진다
 - **합이 77 이상**이 되면 하트를 하나 잃고 그 라운드가 끝난다
-- **합이 11의 배수**(11·22·33·44·55·66)가 되어도 하트를 잃는다. 0은 판의 출발점이라 세지 않는다
+- **합이 11의 배수**(11·22·33·44·55·66)가 되어도 하트를 잃는다. 0은 판의 출발점이라 세지 않고, -11 같은 음수도 세지 않는다
 - **제한 시간**을 넘겨도 하트를 잃는다 (5·10·15초·무제한 중 방장이 고른다)
 - 카드를 내면 곧바로 한 장을 채워 늘 5장을 들고 있다
 - 라운드가 끝나면 카드를 모두 모아 다시 섞고 5장씩 나눈다. **새 라운드의 선은 직전 선의 왼쪽 사람**
@@ -112,10 +114,13 @@ npx cloudflared tunnel --url http://localhost:8790
 ## 구조
 
 ```
-rules.js    덱 · 낼 수 있는지 · 판정 (순수 함수, 서버와 테스트가 같이 씀)
-server.js   정적 서빙 + WebSocket. 손패 · 합 · 타이머 · 봇을 전부 서버가 쥔다
-public/     화면 (index.html · style.css · app.js)
-test/       rules.js 규칙 단위 테스트 · flow.js 서버를 띄워 판을 끝까지 돌리는 테스트
+rules.js       덱 · 낼 수 있는지 · 판정 (순수 함수, 서버와 테스트가 같이 씀)
+game.js        방 · 손패 · 합 · 타이머 · 봇. 서버가 판을 전부 쥔다. 통신 방식은 모른다
+worker.js      Cloudflare Workers 서버 — 소켓을 Durable Object 하나로 받아 game.js 에 넘긴다 (실제 서비스)
+server.js      Node 서버 — 같은 game.js 를 ws 로 띄운다 (로컬 개발 · 테스트)
+hub.js         허브 채팅의 예전 Render 판 (지금 허브 채팅은 41ways/norara 의 chat/ 에서 돈다)
+public/        화면 (index.html · style.css · app.js)
+test/          rules.js 규칙 단위 · flow.js 판을 끝까지 돌리기 · hub.js 허브 채팅 · smoke.js 떠 있는 서버 확인
 ```
 
 클라이언트는 판정을 하지 않는다. "이 카드 낼래" 만 보내고 나머지는 서버가 정한다.
@@ -129,6 +134,14 @@ npm test
 
 규칙 단위 테스트와, 실제로 서버를 띄워 2·4·6인 판을 끝까지 돌리는 통합 테스트가 함께 돈다.
 `ROBO_FAST=1` 을 주면 봇이 뜸을 들이지 않아 판이 빨리 끝난다.
+
+Cloudflare 판도 같은 테스트로 확인한다.
+
+```bash
+npx wrangler dev --port 8793 --var ROBO_FAST:1   # 한 창에서
+PORT=8793 node test/flow.js                      # 다른 창에서 — 판을 끝까지
+node test/smoke.js https://robo77.41ways.workers.dev   # 배포본 확인
+```
 
 ## 저작권
 

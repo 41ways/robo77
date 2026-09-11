@@ -9,8 +9,10 @@ const { spawn } = require('child_process');
 const WebSocket = require('ws');
 const R = require('../rules');
 
-const PORT = 8791;   // 서비스 포트(8790) 바로 옆, 다른 프로젝트와 겹치지 않게
-const URL = `ws://127.0.0.1:${PORT}`;
+// PORT 를 주면 이미 떠 있는 서버(ROBO_FAST=1 로 띄운 것)에 붙는다 — wrangler dev 시험용
+const USE_EXISTING = !!process.env.PORT;
+const PORT = process.env.PORT || 8791;   // 서비스 포트(8790) 바로 옆, 다른 프로젝트와 겹치지 않게
+const URL = `ws://127.0.0.1:${PORT}/ws`;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -122,13 +124,16 @@ function run(label, { players, turnLimit, showSum }) {
 }
 
 (async () => {
-  const srv = spawn(process.execPath, [require.resolve('../server.js')], {
-    env: Object.assign({}, process.env, { PORT: String(PORT), ROBO_FAST: '1' }),
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  let srv = { kill() {} };
   let stderr = '';
-  srv.stderr.on('data', d => { stderr += d; process.stderr.write(d); });
-  await new Promise(r => srv.stdout.on('data', d => { if (String(d).includes('로보77 서버')) r(); }));
+  if (!USE_EXISTING) {
+    srv = spawn(process.execPath, [require.resolve('../server.js')], {
+      env: Object.assign({}, process.env, { PORT: String(PORT), ROBO_FAST: '1' }),
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    srv.stderr.on('data', d => { stderr += d; process.stderr.write(d); });
+    await new Promise(r => srv.stdout.on('data', d => { if (String(d).includes('로보77 서버')) r(); }));
+  }
 
   try {
     const cases = [
