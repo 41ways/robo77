@@ -11,6 +11,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
 const R = require('./rules');
+const { createHub } = require('./hub');
 
 const PORT = process.env.PORT || 8790;
 const PUBLIC = path.join(__dirname, 'public');
@@ -589,7 +590,7 @@ const server = http.createServer((req, res) => {
 
   if (file === '/healthz') {
     res.writeHead(200, { 'content-type': 'application/json' });
-    return res.end(JSON.stringify({ ok: true, rooms: rooms.size, rev: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || null }));
+    return res.end(JSON.stringify({ ok: true, rooms: rooms.size, hub: hub.size(), rev: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || null }));
   }
 
   if (file === '/') file = '/index.html';
@@ -603,7 +604,15 @@ const server = http.createServer((req, res) => {
   });
 });
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ noServer: true });
+const hub = createHub();
+
+// 한 서버에 소켓 두 갈래 — /hub 는 게임 모음 허브의 채팅, 나머지는 전부 로보77 판.
+// 둘 다 server 에 직접 붙이면 서로 상대 경로를 400 으로 끊어 버린다. 그래서 여기서 갈라 준다.
+server.on('upgrade', (req, socket, head) => {
+  if (new URL(req.url, 'http://x').pathname === '/hub') return hub.handleUpgrade(req, socket, head);
+  wss.handleUpgrade(req, socket, head, ws => wss.emit('connection', ws, req));
+});
 
 wss.on('connection', ws => {
   ws.isAlive = true;
