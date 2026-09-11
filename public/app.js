@@ -28,12 +28,16 @@ Object.defineProperty(window, '__me', { get: () => me });
 let pingT = null, resting = false, wokeUp = false;
 
 function resume() {
-  connect(() => send({ t: 'resume', code: store.getItem('code'), token: store.getItem('token') }));
+  connect(() => {
+    const code = store.getItem('code'), token = store.getItem('token');
+    if (code && token) send({ t: 'resume', code, token });
+  });
 }
 
+let restWhy = 0;
 function wake(e) {
   if (!resting) return;
-  if (e.type === 'visibilitychange' && document.hidden) return;   // 탭을 떠날 때는 아님
+  if (e.type === 'visibilitychange' && (document.hidden || restWhy === 4001)) return;   // 넘겨준 자리는 눌러서만 되찾는다
   resting = false;
   $('#toast').classList.remove('on');
   if (store.getItem('code') && store.getItem('token')) { wokeUp = true; resume(); }
@@ -74,7 +78,7 @@ function connect(onOpen) {
     // 4000: 오래 조작이 없어 서버가 닫음 · 4001: 다른 탭이 이 자리를 이어받음(탭 복제 등)
     // 둘 다 스스로 다시 붙지 않는다 — 붙으면 서로를 밀어내며 끝없이 오간다. 누를 때 다시 붙는다.
     if (code === 4000 || code === 4001) {
-      resting = true;
+      resting = true; restWhy = code;
       const t = $('#toast');
       t.textContent = code === 4000
         ? '한동안 조작이 없어서 연결을 쉬고 있어요. 아무 곳이나 누르면 다시 붙어요.'
@@ -96,10 +100,16 @@ function connect(onOpen) {
 
 const send = obj => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)); };
 
+let leaving = false;          // 끊긴 채 나가느라 잠깐 붙은 동안 — 대기실 화면이 번쩍 뜨지 않게 흘려보낸다
 function handle(m) {
+  if (leaving) {
+    if (m.t !== 'left' && m.t !== 'err') return;          // 떠나는 방의 상태·채팅은 받지 않는다
+    leaving = false;
+    if (m.t === 'err') return;
+  }
   switch (m.t) {
     case 'welcome':
-      wokeUp = false;
+      wokeUp = false; entering = 0;
       if (m.code !== chatRoom) { chatRoom = m.code; chatReset(); }   // 다른 방이면 채팅을 비운다
       me = m.you;
       store.setItem('code', m.code);
@@ -124,6 +134,7 @@ function handle(m) {
       break;
 
     case 'err':
+      entering = 0;
       // 오래 쉬다 돌아왔는데 그사이 방이 정리된 경우 — 무엇 때문인지 알려 준다
       toast(m.fatal && wokeUp ? '오래 비워 둔 사이 방이 정리됐어요. 새로 만들어 주세요.' : m.msg);
       if (m.fatal) { store.removeItem('code'); store.removeItem('token'); show('title'); }
@@ -142,6 +153,8 @@ function handle(m) {
 
 function show(id) {
   $$('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  // 방 밖에서는 채팅이 갈 곳이 없다 — 버튼과 창을 접고 전 방의 말도 비운다
+  if (id === 'title' || id === 'setup') { chatRoom = null; chatReset(); $('#chatBtn').hidden = true; }
 }
 
 let toastT = null;
@@ -305,6 +318,7 @@ function renderLobby() {
       <span class="nm">${esc(p.name)}</span>
       ${p.id === S.hostId ? '<span class="badge host">방장</span>' : ''}
       ${p.bot ? '<span class="badge">봇</span>' : ''}
+      ${!p.bot && !p.connected ? '<span class="badge off">끊김</span>' : ''}
       ${p.id === me ? '<span class="badge">나</span>' : ''}`;
     if (isHost && p.id !== S.hostId) {
       const x = document.createElement('button');
@@ -459,7 +473,8 @@ function renderGame() {
   if (due) {
     const on = S.due > 1;
     due.hidden = !on;
-    if (on) due.textContent = `×2 — ${S.due}장 내야 함`;
+    // 좁은 화면에서는 긴 문구가 윗줄을 두 줄로 밀어 ×2 차례마다 판이 출렁였다
+    if (on) due.textContent = innerWidth <= 560 ? `×2 · ${S.due}장` : `×2 — ${S.due}장 내야 함`;
   }
 
   // 자리 — 나를 맨 앞으로 돌려서 순서를 읽기 쉽게 한다
@@ -621,18 +636,21 @@ $('#bBegin').onclick = () => {
 };
 $('#bBack').onclick = () => show('title');
 
-$('#bCreate').onclick = () => {
+// 만들기·참가를 연달아 누르면(더블탭 · Enter 와 클릭) 자리가 둘 생긴다. 답이 올 때까지 한 번만 보낸다.
+let entering = 0;
+function enter(msg) {
+  if (Date.now() - entering < 4000) return;
+  entering = Date.now();
   store.removeItem('code'); store.removeItem('token');
   localStorage.setItem('name', myName());
-  connect(() => send({ t: 'create', name: myName() }));
-};
+  connect(() => send(msg));
+}
+$('#bCreate').onclick = () => enter({ t: 'create', name: myName() });
 
 function doJoin() {
   const code = ($('#gCode').value || '').trim().toUpperCase();
   if (code.length !== 4) return toast('네 글자 코드를 넣어 주세요.');
-  store.removeItem('code'); store.removeItem('token');
-  localStorage.setItem('name', myName());
-  connect(() => send({ t: 'join', code, name: myName() }));
+  enter({ t: 'join', code, name: myName() });
 }
 $('#bJoin').onclick = doJoin;
 $('#gCode').onkeydown = e => { if (e.key === 'Enter') doJoin(); };
@@ -653,8 +671,16 @@ $('#bStart').onclick = () => send({ t: 'start' });
 $('#bAgain').onclick = () => send({ t: 'again' });
 
 const leave = () => {
-  send({ t: 'leave' });
+  const code = store.getItem('code'), token = store.getItem('token');
   store.removeItem('code'); store.removeItem('token');
+  resting = false; wokeUp = false;
+  $('#toast').classList.remove('on');
+  if (ws && ws.readyState === 1) send({ t: 'leave' });
+  else if (code && token) {
+    // 끊겨 있으면 잠깐 붙어서 자리를 비우고 나온다. 안 그러면 서버에는 자리가 그대로 남는다.
+    leaving = true;
+    connect(() => { send({ t: 'resume', code, token }); send({ t: 'leave' }); });
+  }
   history.replaceState(null, '', location.pathname);
   show('title');
 };

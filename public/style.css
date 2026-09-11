@@ -319,6 +319,7 @@ input:focus { border-color: var(--gold); }
 }
 .seat-list .nm { flex: 1; font-weight: 600; }
 .badge { font-size: 11px; padding: 2px 7px; border-radius: 999px; background: var(--surface-4); color: var(--dim); }
+.badge.off { background: transparent; border: 1px dashed var(--danger-line); color: var(--danger-ink); }
 .badge.host { background: var(--gold-soft); color: var(--gold); }
 .seat-list .x { background: none; border: none; color: var(--faint); cursor: pointer; padding: 2px 6px; }
 .seat-list .x:hover { color: var(--heart); }
@@ -590,7 +591,9 @@ input:focus { border-color: var(--gold); }
   .card.rev .v { font-size: 28px; }
   /* 좁은 화면에서도 내 패가 가장 크되 5장이 가로로 딱 들어가게 */
   .hand { gap: 5px; }
-  .hand .card { width: 64px; height: 91px; }
+  /* 360px 아래에서는 5장이 안 들어가 마지막 카드가 잘렸다 — 폭에 맞춰 줄인다 */
+  .hand .card { width: min(64px, calc((100vw - 44px) / 5)); height: auto; aspect-ratio: 64 / 91; }
+  .pill { white-space: nowrap; }
   .hand .card .v { font-size: 27px; }
   .hand .card.rev .v { font-size: 31px; }
   .hand .card .n { font-size: 9.5px; margin-top: 5px; }
