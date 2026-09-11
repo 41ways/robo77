@@ -58,17 +58,25 @@ function connect(onOpen) {
   ws.onmessage = e => {
     if (sock !== ws) return;
     let m; try { m = JSON.parse(e.data); } catch (_) { return; }
+    if (m.t === 'moved' || m.t === 'idle') {             // 곧 닫힌다 — 닫힘 코드가 중간에 떨어져도 알 수 있게
+      sock.why = m.t;
+      sock.onclose({ code: m.t === 'moved' ? 4001 : 4000 });   // 닫힘이 늦게 오거나 안 와도 여기서 멈춘다
+      ws = null;
+      try { sock.close(); } catch (_) {}
+      return;
+    }
     handle(m);
   };
   ws.onclose = e => {
     if (sock !== ws) return;
     clearInterval(pingT);
+    const code = sock.why === 'moved' ? 4001 : sock.why === 'idle' ? 4000 : e.code;
     // 4000: 오래 조작이 없어 서버가 닫음 · 4001: 다른 탭이 이 자리를 이어받음(탭 복제 등)
     // 둘 다 스스로 다시 붙지 않는다 — 붙으면 서로를 밀어내며 끝없이 오간다. 누를 때 다시 붙는다.
-    if (e.code === 4000 || e.code === 4001) {
+    if (code === 4000 || code === 4001) {
       resting = true;
       const t = $('#toast');
-      t.textContent = e.code === 4000
+      t.textContent = code === 4000
         ? '한동안 조작이 없어서 연결을 쉬고 있어요. 아무 곳이나 누르면 다시 붙어요.'
         : '다른 창에서 이 자리를 이어받았어요. 여기서 계속하려면 아무 곳이나 누르세요.';
       t.classList.add('on');
