@@ -22,17 +22,59 @@ Object.defineProperty(window, '__me', { get: () => me });
 
 /* ─────────────────────────── 접속 ─────────────────────────── */
 
+/* 서버(Cloudflare 무료 플랜)는 켜져 있는 시간이 한도라서,
+   20분 동안 아무 조작이 없으면 서버가 연결을 닫는다(4000). 그때는 스스로 다시 붙지 않고
+   화면을 다시 만질 때 이어 붙는다. 켜 두기만 한 탭이 서버를 붙잡아 두지 않게. */
+let pingT = null, resting = false, wokeUp = false;
+
+function resume() {
+  connect(() => send({ t: 'resume', code: store.getItem('code'), token: store.getItem('token') }));
+}
+
+function wake(e) {
+  if (!resting) return;
+  if (e.type === 'visibilitychange' && document.hidden) return;   // 탭을 떠날 때는 아님
+  resting = false;
+  $('#toast').classList.remove('on');
+  if (store.getItem('code') && store.getItem('token')) { wokeUp = true; resume(); }
+}
+['pointerdown', 'keydown'].forEach(t => addEventListener(t, wake, true));
+document.addEventListener('visibilitychange', wake);
+
 function connect(onOpen) {
   if (ws && ws.readyState === 1) { onOpen && onOpen(); return; }
+  // 붙는 중이던 옛 소켓(만들기 연타 등)은 손을 떼고 닫는다. 그대로 두면 나중에 그게 닫힐 때
+  // 지금 소켓의 ping 을 꺼 버려서, 멀쩡한 연결이 75초 뒤 끊긴 것으로 처리된다.
+  if (ws) { ws.onopen = ws.onmessage = ws.onclose = null; try { ws.close(); } catch (_) {} }
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  ws = new WebSocket(`${proto}://${location.host}`);
+  const sock = ws = new WebSocket(`${proto}://${location.host}/ws`);
 
-  ws.onopen = () => onOpen && onOpen();
+  ws.onopen = () => {
+    if (sock !== ws) return;
+    clearInterval(pingT);
+    pingT = setInterval(() => send({ t: 'ping' }), 25_000);   // 서버가 끊긴 탭을 가려낼 수 있게
+    onOpen && onOpen();
+  };
   ws.onmessage = e => {
+    if (sock !== ws) return;
     let m; try { m = JSON.parse(e.data); } catch (_) { return; }
     handle(m);
   };
-  ws.onclose = () => {
+  ws.onclose = e => {
+    if (sock !== ws) return;
+    clearInterval(pingT);
+    // 4000: 오래 조작이 없어 서버가 닫음 · 4001: 다른 탭이 이 자리를 이어받음(탭 복제 등)
+    // 둘 다 스스로 다시 붙지 않는다 — 붙으면 서로를 밀어내며 끝없이 오간다. 누를 때 다시 붙는다.
+    if (e.code === 4000 || e.code === 4001) {
+      resting = true;
+      const t = $('#toast');
+      t.textContent = e.code === 4000
+        ? '한동안 조작이 없어서 연결을 쉬고 있어요. 아무 곳이나 누르면 다시 붙어요.'
+        : '다른 창에서 이 자리를 이어받았어요. 여기서 계속하려면 아무 곳이나 누르세요.';
+      t.classList.add('on');
+      clearTimeout(toastT);                    // 누를 때까지 떠 있게
+      return;
+    }
     if (store.getItem('code') && store.getItem('token')) {
       toast('연결이 끊겼어요. 다시 붙는 중…');
       setTimeout(() => connect(() => send({
@@ -49,6 +91,8 @@ const send = obj => { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj)
 function handle(m) {
   switch (m.t) {
     case 'welcome':
+      wokeUp = false;
+      if (m.code !== chatRoom) { chatRoom = m.code; chatReset(); }   // 다른 방이면 채팅을 비운다
       me = m.you;
       store.setItem('code', m.code);
       store.setItem('token', m.token);
@@ -72,8 +116,10 @@ function handle(m) {
       break;
 
     case 'err':
-      toast(m.msg);
+      // 오래 쉬다 돌아왔는데 그사이 방이 정리된 경우 — 무엇 때문인지 알려 준다
+      toast(m.fatal && wokeUp ? '오래 비워 둔 사이 방이 정리됐어요. 새로 만들어 주세요.' : m.msg);
       if (m.fatal) { store.removeItem('code'); store.removeItem('token'); show('title'); }
+      wokeUp = false;
       break;
 
     case 'left':
@@ -104,7 +150,7 @@ function cardFace(c) {
   if (c.t === 'x2')  return { cls: 'x2',  v: '×2', n: '다음 2장' };
   if (c.t === 'rev') return { cls: 'rev', v: '↺',  n: '방향전환' };
   if (c.tag === 'minus') return { cls: 'minus', v: '-10', n: '빼기' };
-  if (c.tag === 's76')   return { cls: 's76',   v: '76',  n: '합 0 이하' };
+  if (c.tag === 's76')   return { cls: 's76',   v: '76',  n: '76 더하기' };
   if (c.tag === 'big')   return { cls: 'big',   v: String(c.v), n: '11의 배수' };
   if (c.tag === 'zero')  return { cls: 'zero',  v: '0',   n: '그대로' };
   return { cls: 'plain', v: String(c.v), n: '' };
@@ -130,6 +176,15 @@ const heartsHTML = h => {
    봇만 있는 방에서는 아예 뜨지 않는다. */
 
 let chatUnread = 0;
+let chatRoom = null;       // 지금 채팅이 속한 방 — 방이 바뀌면 이전 방의 말을 들고 가지 않는다
+
+/** 새 방에 들어오면 채팅을 비운다. 안 그러면 전 방에서 오간 말이 새 방 채팅창에 그대로 남는다. */
+function chatReset() {
+  $('#chatLog').textContent = '';
+  $('#chat').hidden = true;
+  chatUnread = 0; chatBadge(); chatPeekOff();
+  chatAway = 0; chatTitle();
+}
 
 function chatOpen(on) {
   $('#chat').hidden = !on;
